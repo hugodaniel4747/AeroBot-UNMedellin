@@ -111,7 +111,7 @@ class Garden:
             return 1
     
     def deletePlantMap(self, row_number, bed_number, line, column):
-        if self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column] != None:
+        if self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column] != None and self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column] != "Used":
             self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column] = None
             return 0
         else:
@@ -119,7 +119,7 @@ class Garden:
             return 1
             
     def coppyPositionPlantMap(self, row_number, bed_number, line, column):
-        if self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column] != None:
+        if self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column] != None and self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column] != "Used":
             return self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column]
         else:
             print("ERROR in: coppyPositionPlantMap. No existing plant in this location")
@@ -130,11 +130,24 @@ class Garden:
             for bed in row.listOfBeds:
                 for line in range(bed._unitQuantityLength):
                     for column in range(bed._unitQuantityWidth):
-                        if bed.bedMap[line][column] != None and bed.bedMap[line][column] != 1:
+                        if bed.bedMap[line][column] != None and bed.bedMap[line][column] != "Used":
                             bed.bedMap[line][column].area = 200
                             #camera.getPlantArea = self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column].area
-                        
-            
+    
+    """
+    def findSpaceForPlant(self,coordinates):
+        for row in self.listOfRows:
+            for bed in row.listOfBeds:
+                for line in range(1,bed._unitQuantityLength-1):
+                    for column in range(1,bed._unitQuantityWidth-1):
+                        if bed.bedMap[line-1][column] == None and bed.bedMap[line][column+1] == None and bed.bedMap[line][column-1] == None and bed.bedMap[line+1][column] == None:                
+                            coordinates[0] = line
+                            coordinates[1] = column
+                            return 0
+        return 1
+    """
+    
+                            
     # Working in the garden methods
     def addSetOfPlants(self, plant_tuple, quantity_of_plants):   
         # Look for available space
@@ -172,6 +185,7 @@ class Garden:
         if self.deletePlantMap(row_number, bed_number, line, column):
             return 1
                   
+    """
     def moveMaturePlants(self):
         # Function looks in the areas of the plants and compare them with a treshold value
         # to determine if they needs more space
@@ -181,21 +195,17 @@ class Garden:
                     for column in range(bed._unitQuantityWidth):
                         for ref_plant in DictOfPlantes.myList:
                             if bed.bedMap[line][column] != None and bed.bedMap[line][column] != "Used":
-                                if bed.bedMap[line][column].name == ref_plant[0] and bed.bedMap[line][column].area > ref_plant[1]:
-                                    for row_ in self.listOfRows:
-                                        for bed_ in row.listOfBeds:
-                                            for line_ in range(1,bed._unitQuantityLength-1):
-                                                for column_ in range(1,bed._unitQuantityWidth-1):
-                                                    if bed_.bedMap[line_-1][column_] == None and bed_.bedMap[line_][column_+1] == None and bed_.bedMap[line_][column_-1] == None and bed_.bedMap[line_+1][column_] == None:
-                                                        #The plant will take the space of 4 plants
-                                                        bed_.bedMap[line_][column_] = bed.bedMap[line][column] 
-                                                        bed_.bedMap[line_-1][column_] = "Used"
-                                                        bed_.bedMap[line_][column_+1] = "Used"
-                                                        bed_.bedMap[line_][column_-1] = "Used"
-                                                        bed_.bedMap[line_+1][column_] = "Used"
+                                if bed.bedMap[line][column].name == ref_plant[0] and bed.bedMap[line][column].area > ref_plant[1]:                                         
+                                    coordinates = np.array([None,None])
+                                    if self.findSpaceForPlant(coordinates) != 1:     
+                                        #The plant will take the space of 4 plants
+                                        bed.bedMap[coordinates[0]][coordinates[1]] = bed.bedMap[line][column] 
+                                        bed.bedMap[coordinates[0]-1][coordinates[1]] = "Used"
+                                        bed.bedMap[coordinates[0]][coordinates[1]+1] = "Used"
+                                        bed.bedMap[coordinates[0]][coordinates[1]-1] = "Used"
+                                        bed.bedMap[coordinates[0]+1][coordinates[1]] = "Used"
+      """                                              
                                                     
-                                                    
-                                # Need to find a spot with enough space
     
     #def harvestPlantMap(self):
         
@@ -230,6 +240,27 @@ class Garden:
                         elif bed.bedMap[line][column] == "Used":
                             coppy_array[line][column] = bed.bedMap[line][column]
                 print(coppy_array)
+        
+    def displayGardenMapAreas(self):
+        print("Garden name: ",self.name)
+        for row in self.listOfRows:
+            print("Row: ",1 + self.listOfRows.index(row))
+            for bed in row.listOfBeds:
+                print("Bed: ",1 + row.listOfBeds.index(bed))
+                
+                coppy_array = np.array([[None, None, None, None, None],
+                                [None, None, None, None, None],
+                                [None, None, None, None, None],
+                                [None, None, None, None, None],
+                                [None, None, None, None, None],
+                                [None, None, None, None, None]])
+                for line in range(bed._unitQuantityLength):
+                    for column in range(bed._unitQuantityWidth):
+                        if bed.bedMap[line][column] != None and bed.bedMap[line][column] != "Used":
+                            coppy_array[line][column] = bed.bedMap[line][column].area
+                        elif bed.bedMap[line][column] == "Used":
+                            coppy_array[line][column] = bed.bedMap[line][column]
+                print(coppy_array)
     
 def main():   
     print("main: ")
@@ -246,12 +277,11 @@ def main():
     
     G.deletePlant(1,1,np.array([1,2]))"""
     
-    G.addPlantMapGarden(0,0,1,2,DictOfPlantes.myList[1])
-    G.displayGardenMap()
+    G.addPlantMapGarden(0,0,0,0,DictOfPlantes.myList[1])
+    G.addSetOfPlants(DictOfPlantes.myList[2],3)
+    G.displayGardenMapAreas()
     G.updatePlantsArea()
-    G.displayGardenMap()
-    G.moveMaturePlants()
-    G.displayGardenMap()
+    G.displayGardenMapAreas()
     """G.movePlant(0,0,1,2,3,3)
     G.displayGardenMap()
     G.addSetOfPlants(DictOfPlantes.myList[2],15)
