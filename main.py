@@ -12,7 +12,7 @@
 # Library
 import cv2
 import AeroGarden
-import Core_Vision
+import Vision
 
 
 
@@ -37,12 +37,12 @@ def main():
     
     
     #Plants detection
-    img = Core_Vision.getImage(Image_Directory)
-    contours = Core_Vision.pipelineGetContours(img)
-    listOfAreas = Core_Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
-    listOfAreasInsideTresh = Core_Vision.analyseAreasProximity(listOfAreas, Dist_Tresh)
-    listAreaGroup = Core_Vision.findDuplicatesAreas(listOfAreasInsideTresh)
-    Core_Vision.drawAreas(img, listAreaGroup)
+    img = Vision.getImage(Image_Directory)
+    contours = Vision.pipelineGetContours(img)
+    listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
+    listOfAreasInsideTresh = Vision.analyseAreasProximity(listOfAreas, Dist_Tresh)
+    listAreaGroup = Vision.findDuplicatesAreas(listOfAreasInsideTresh)
+    Vision.drawAreas(img, listAreaGroup)
     
     cv2.namedWindow("image")
     cv2.imshow("image",img)
