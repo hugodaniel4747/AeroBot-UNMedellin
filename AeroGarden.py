@@ -9,6 +9,7 @@
     
     
 """
+
 import numpy as np
 #import webcamRaspBerryPi as camera
 
@@ -261,37 +262,8 @@ class Garden:
                         elif bed.bedMap[line][column] == "Used":
                             coppy_array[line][column] = bed.bedMap[line][column]
                 print(coppy_array)
-    
-def main():   
-    print("main: ")
-    G = Garden()
-    G.addRow()
-    G.addBed(0)
-    G.addBed(0)
-    """G.addPlant(1,1,np.array([1,1]), DictOfPlantes.basil[0])
-    G.addPlant(1,1,np.array([1,2]), DictOfPlantes.lettuce[0])
-    G.addPlant(1,1,np.array([1,3]), DictOfPlantes.tomato[0])
-    G.addPlant(1,2,np.array([1,1]), DictOfPlantes.lettuce[0])
-       
-    G.displayGarden()
-    
-    G.deletePlant(1,1,np.array([1,2]))"""
-    
-    G.addPlantMapGarden(0,0,0,0,DictOfPlantes.myList[1])
-    G.addSetOfPlants(DictOfPlantes.myList[2],3)
-    G.displayGardenMapAreas()
-    G.updatePlantsArea()
-    G.displayGardenMapAreas()
-    """G.movePlant(0,0,1,2,3,3)
-    G.displayGardenMap()
-    G.addSetOfPlants(DictOfPlantes.myList[2],15)
-    G.displayGardenMap()"""
+                
 
-    
-    
-if __name__=="__main__":
-    main()
-    
 
 
 
