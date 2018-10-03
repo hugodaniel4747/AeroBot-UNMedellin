@@ -27,15 +27,20 @@ def main():
     #Garden initialisation
     G = AeroGarden.Garden()
     G.addRow()
-    G.addBed(0)
+    G.addRow()
+    G.addBed(0, AeroGarden.Icorpor6x6())
+    G.addBed(1, AeroGarden.Icorpor6x6())
     
-    G.addPlantMapGarden(0,0,0,0,AeroGarden.DictOfPlantes.myList[1])
-    G.addSetOfPlants(AeroGarden.DictOfPlantes.myList[2],3)
-    G.displayGardenMapAreas()
-    G.updatePlantsArea()
-    G.displayGardenMapAreas()
+    G.displayGardenMap()
+    G.addPlantMapGarden(0,0,0,0,AeroGarden.DictOfPlantes.myPlants[1])
+    G.displayGardenMap()
+    G.addSetOfPlantsMap(AeroGarden.DictOfPlantes.myPlants[2],10)
+    G.displayGardenMap()
     
+    #G.updatePlantsArea()
+    #G.displayGardenMapAreas()
     
+    """
     #Plants detection
     img = Vision.getImage(Image_Directory)
     contours = Vision.pipelineGetContours(img)
@@ -48,7 +53,7 @@ def main():
     cv2.imshow("image",img)
 
     cv2.waitKey(0)
-
+    """
     
     
 if __name__=="__main__":

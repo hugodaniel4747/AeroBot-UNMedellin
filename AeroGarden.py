@@ -11,13 +11,51 @@
 """
 
 import numpy as np
+import copy
 #import webcamRaspBerryPi as camera
 
 class DictOfPlantes:
     # list = [("name", area1, area2),("name", area1, area2)...]
     # -> Areas or used to know how much place is recquired for a plant of a certain size
-    myList = [("Tomato", 100, 400),("Basil", 100, 150),("Lettuce", 100, 400)]
+    myPlants = [("Tomato", 100, 400),("Basil", 100, 150),("Lettuce", 100, 400)] 
 
+class Icorpor6x6:
+    name = "Icorpor 6x6"
+    number_holes = 36
+    number_holes_length = 6
+    number_holes_width = 6
+    total_width = 980 # in mm
+    dist_holes2holes = 152 # distance between center of the holes in mm
+    dist_holes2border = 110 # distance between center of holes and border in mm
+    diameter = 31.75 # holes diameter in mm
+    icorporMap = np.array([[None, None, None, None, None, None],
+                           [None, None, None, None, None, None],
+                           [None, None, None, None, None, None],
+                           [None, None, None, None, None, None],
+                           [None, None, None, None, None, None],
+                           [None, None, None, None, None, None]])
+
+class Icorpor12x12:    
+    name = "Icorpor 12x12"
+    number_holes = 144
+    number_holes_length = 12
+    number_holes_width = 12
+    total_width = 980 # in mm
+    dist_holes2holes = 144 # distance between center of the holes in mm
+    dist_holes2border = 69.09 # distance between center of holes and border in mm
+    diameter = 31.75 # holes diameter in mm
+    icorporMap = np.array([[None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None],
+                           [None, None, None, None, None, None, None, None, None, None, None, None]]) 
 
 class Plant:
     
@@ -29,31 +67,31 @@ class Plant:
 class AreoBed:
     _bedLength = 4 # lenght of one bed in meters: Private
     _bedWidth = 2 # width of one bed in meters: Private
+    
     _unitLength = 1 # lenght of one unit in meters: Private
     _unitWidth = 1 # width of one unit in meters: Private
-    _unitQuantityLength = 6 # quantity of units for the length: Private
-    _unitQuantityWidth = 5 # quantity of units for the width: Private
-        
-    _unitArea = _unitLength * _unitWidth # unit area in meter^2
-    _bedUnitQuantity = _unitQuantityLength * _unitQuantityWidth # total quanty of units
     
-    def __init__(self):    
+    def __init__(self, icorpor):    
         self.listOfPlants = [] # List of plants
+        self.icorpor = icorpor
+        
+        self.unitQuantityLength =  self.icorpor.number_holes_length # quantity of units for the length
+        self.unitQuantityWidth = self.icorpor.number_holes_width # quantity of units for the width
+        
+        self.bedUnitQuantity = self.icorpor.number_holes # total quanty of units
+        
         # Bed map with plants location denoted with line and column: [line][column]
-        self.bedMap = np.array([[None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None]])
+        self.bedMap = copy.deepcopy(self.icorpor.icorporMap)
+        self.bedMapRef = copy.deepcopy(self.icorpor.icorporMap)
     
-    def addPlant(self, name="none", area=0):
-        self.listOfPlants.append(Plant(name, area))
+    def addPlant(self, plant_tuple, area=0):
+        self.listOfPlants.append(Plant(plant_tuple[0], area))
     
-    def deletePlant(self, position):
-        for plant in self.listOfPlants:
-            if np.array_equal(plant.position, position):                
-                self.listOfPlants.remove(plant)
+    def deletePlant(self, position):              
+        self.listOfPlants.remove(position)
+        
+    def displayBed(self):
+        print(self.listOfPlants)
     
     def addPlantMap(self, line, column, plant_tuple, area=0):
         self.bedMap[line][column] = Plant(plant_tuple[0],area)
@@ -70,8 +108,8 @@ class Row:
         self.name = name    
         self.listOfBeds = [] # List of aeroponics beds
     
-    def addAreoBed(self):
-        self.listOfBeds.append(AreoBed())
+    def addAreoBed(self, icorpor):
+        self.listOfBeds.append(AreoBed(icorpor))
         
     def deleteBed(self,bed_number):
         self.listOfBeds.pop(bed_number)
@@ -87,11 +125,11 @@ class Garden:
     def addRow(self,name="none"):
         self.listOfRows.append(Row(name))
     
-    def addBed(self, row_number):
-        self.listOfRows[row_number].addAreoBed()       
+    def addBed(self, row_number, icorpor):
+        self.listOfRows[row_number].addAreoBed(icorpor)       
         
-    def addPlant(self, row_number, bed_number, plant_position, plant_name="none"):
-        self.listOfRows[row_number].listOfBeds[bed_number].addPlant(plant_position,plant_name)
+    def addPlant(self, row_number, bed_number, plant_tuple, area, plant_position=None):
+        self.listOfRows[row_number].listOfBeds[bed_number].addPlant(self,plant_tuple, area)
         
     def deletePlant(self, row_number, bed_number, plant_position):
         self.listOfRows[row_number].listOfBeds[bed_number].deletePlant(plant_position)
@@ -129,8 +167,8 @@ class Garden:
     def updatePlantsArea(self):
         for row in self.listOfRows:
             for bed in row.listOfBeds:
-                for line in range(bed._unitQuantityLength):
-                    for column in range(bed._unitQuantityWidth):
+                for line in range(bed.unitQuantityLength):
+                    for column in range(bed.unitQuantityWidth):
                         if bed.bedMap[line][column] != None and bed.bedMap[line][column] != "Used":
                             bed.bedMap[line][column].area = 200
                             #camera.getPlantArea = self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column].area
@@ -139,8 +177,8 @@ class Garden:
     def findSpaceForPlant(self,coordinates):
         for row in self.listOfRows:
             for bed in row.listOfBeds:
-                for line in range(1,bed._unitQuantityLength-1):
-                    for column in range(1,bed._unitQuantityWidth-1):
+                for line in range(1,bed.unitQuantityLength-1):
+                    for column in range(1,bed.unitQuantityWidth-1):
                         if bed.bedMap[line-1][column] == None and bed.bedMap[line][column+1] == None and bed.bedMap[line][column-1] == None and bed.bedMap[line+1][column] == None:                
                             coordinates[0] = line
                             coordinates[1] = column
@@ -151,6 +189,28 @@ class Garden:
                             
     # Working in the garden methods
     def addSetOfPlants(self, plant_tuple, quantity_of_plants):   
+        # Look for available space
+        quantity_of_available_units = 0
+        for row in self.listOfRows:
+            for bed in row.listOfBeds:
+                quantity_of_available_units = quantity_of_available_units + bed.icropor[1] - len(bed.listOfPlants)
+        
+        if quantity_of_available_units < quantity_of_plants:
+            print("ERROR in: addSetOfPlants. Not enough available space in the garden")
+            print(quantity_of_available_units, " units are availables")           
+            return 1
+        else:   
+            plants_to_plant = quantity_of_plants
+            
+            for row in self.listOfRows:
+                for bed in row.listOfBeds:
+                    if plants_to_plant == 0:
+                        return 0
+                    elif len(bed.listOfPlants) < bed.icorpore[1]:
+                        bed.addPlant()
+                        plants_to_plant = plants_to_plant - 1
+    
+    def addSetOfPlantsMap(self, plant_tuple, quantity_of_plants):   
         # Look for available space
         quantity_of_available_units = 0
         for row in self.listOfRows:
@@ -166,8 +226,8 @@ class Garden:
             
             for row in self.listOfRows:
                 for bed in row.listOfBeds:
-                    for line in range(bed._unitQuantityLength):
-                        for column in range(bed._unitQuantityWidth):
+                    for line in range(bed.unitQuantityLength):
+                        for column in range(bed.unitQuantityWidth):
                             if plants_to_plant == 0:
                                 return 0
                             elif bed.bedMap[line][column] == None:
@@ -192,9 +252,9 @@ class Garden:
         # to determine if they needs more space
         for row in self.listOfRows:
             for bed in row.listOfBeds:
-                for line in range(bed._unitQuantityLength):
-                    for column in range(bed._unitQuantityWidth):
-                        for ref_plant in DictOfPlantes.myList:
+                for line in range(bed.unitQuantityLength):
+                    for column in range(bed.unitQuantityWidth):
+                        for ref_plant in DictOfPlantes.myPlants:
                             if bed.bedMap[line][column] != None and bed.bedMap[line][column] != "Used":
                                 if bed.bedMap[line][column].name == ref_plant[0] and bed.bedMap[line][column].area > ref_plant[1]:                                         
                                     coordinates = np.array([None,None])
@@ -226,16 +286,10 @@ class Garden:
         for row in self.listOfRows:
             print("Row: ",1 + self.listOfRows.index(row))
             for bed in row.listOfBeds:
-                print("Bed: ",1 + row.listOfBeds.index(bed))
-                
-                coppy_array = np.array([[None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None]])
-                for line in range(bed._unitQuantityLength):
-                    for column in range(bed._unitQuantityWidth):
+                print("Bed: ",1 + row.listOfBeds.index(bed))                
+                coppy_array = copy.deepcopy(bed.bedMapRef)
+                for line in range(bed.unitQuantityLength):
+                    for column in range(bed.unitQuantityWidth):
                         if bed.bedMap[line][column] != None and bed.bedMap[line][column] != "Used":
                             coppy_array[line][column] = bed.bedMap[line][column].name
                         elif bed.bedMap[line][column] == "Used":
@@ -248,15 +302,9 @@ class Garden:
             print("Row: ",1 + self.listOfRows.index(row))
             for bed in row.listOfBeds:
                 print("Bed: ",1 + row.listOfBeds.index(bed))
-                
-                coppy_array = np.array([[None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None],
-                                [None, None, None, None, None]])
-                for line in range(bed._unitQuantityLength):
-                    for column in range(bed._unitQuantityWidth):
+                coppy_array = copy.deepcopy(bed.bedMapRef)
+                for line in range(bed.unitQuantityLength):
+                    for column in range(bed.unitQuantityWidth):
                         if bed.bedMap[line][column] != None and bed.bedMap[line][column] != "Used":
                             coppy_array[line][column] = bed.bedMap[line][column].area
                         elif bed.bedMap[line][column] == "Used":
