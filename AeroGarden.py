@@ -1,9 +1,10 @@
 """
 
     Editor: Hugo Daniel
-    Project name: AreoBot U.N.
+    Project name: AreoponicBot U.N.
     Date: September 2018
     Location: Universidad National de Colombia sede Medellin
+    File name: AeroGarden.py
 
     Description: Class that defines the areoponic bed proproties
     
@@ -12,12 +13,26 @@
 
 import numpy as np
 import copy
-#import webcamRaspBerryPi as camera
+import MotorControl
+import Vision
+
 
 class DictOfPlantes:
     # list = [("name", area1, area2),("name", area1, area2)...]
     # -> Areas or used to know how much place is recquired for a plant of a certain size
     myPlants = [("Tomato", 100, 400),("Basil", 100, 150),("Lettuce", 100, 400)] 
+    
+class IcorporTEST:
+    name = "Icorpor TEST"
+    number_holes = 6
+    number_holes_length = 1
+    number_holes_width = 6
+    total_width = 980 # in mm
+    dist_holes2holes = 152 # distance between center of the holes in mm
+    dist_holes2border = 110 # distance between center of holes and border in mm
+    diameter = 31.75 # holes diameter in mm
+    icorporMap = np.array([[None, None, None, None, None, None]])
+    icorporStepMap = np.array([[200, 400, 600, 800, 1000, 1200]])
 
 class Icorpor6x6:
     name = "Icorpor 6x6"
@@ -34,6 +49,12 @@ class Icorpor6x6:
                            [None, None, None, None, None, None],
                            [None, None, None, None, None, None],
                            [None, None, None, None, None, None]])
+    icorporStepMap = np.array([[200, 400, 600, 800, 1000, 1200],
+                               [None, None, None, None, None, None],
+                               [None, None, None, None, None, None],
+                               [None, None, None, None, None, None],
+                               [None, None, None, None, None, None],
+                               [None, None, None, None, None, None]])
 
 class Icorpor12x12:    
     name = "Icorpor 12x12"
@@ -170,8 +191,15 @@ class Garden:
                 for line in range(bed.unitQuantityLength):
                     for column in range(bed.unitQuantityWidth):
                         if bed.bedMap[line][column] != None and bed.bedMap[line][column] != "Used":
-                            bed.bedMap[line][column].area = 200
-                            #camera.getPlantArea = self.listOfRows[row_number].listOfBeds[bed_number].bedMap[line][column].area
+                            MotorControl.easyGoTo(bed.icorpor.icorporStepMap[line][column])
+                            capture = Vision.getCapture()
+                            contours = Vision.pipelineGetContours(capture)
+                            listOfAreas = Vision.drawAreasBoundingBox(capture, contours, Vision.Tresh_Area)
+                            listOfAreasInsideTresh = Vision.analyseAreasProximity(listOfAreas, Vision.Dist_Tresh)
+                            listAreaGroup = Vision.findDuplicatesAreas(listOfAreasInsideTresh)
+                            """ATTENTION CODE UNDER IS NOT RELIABLE: NEED TO IMPROVE"""
+                            bed.bedMap[line][column].area = listAreaGroup[0]
+                            
     
     """
     def findSpaceForPlant(self,coordinates):

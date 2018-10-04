@@ -1,9 +1,10 @@
 """
 
     Editor: Hugo Daniel
-    Project name: AreoBot U.N.
+    Project name: AreoponicBot U.N.
     Date: September 2018
     Location: Universidad National de Colombia sede Medellin
+    File name: Vision.py
 
     Description: Vision algorythme to detect plants and deternimate proprieties
     
@@ -12,6 +13,10 @@
 # Library
 import cv2
 import numpy as np
+
+# Global def
+Tresh_Area = 100
+Dist_Tresh = 150
 
 def getImage(imageDirectory):
     """
@@ -194,5 +199,15 @@ def getTotalArea(listOfAreas):
     for area in listOfAreas:
         totalArea = totalArea + area[0]
     return totalArea
+
+def storeCapture(capture_name, directory=""):
+    camera = cv2.VideoCapture(0)
+    ret, frame = camera.read()
+    cv2.imwrite(directory+capture_name, frame)
+    
+def getCapture():
+    camera = cv2.VideoCapture(0)
+    ret, frame = camera.read()
+    return frame
                         
 

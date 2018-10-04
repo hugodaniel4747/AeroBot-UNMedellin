@@ -1,9 +1,10 @@
 """
 
     Editor: Hugo Daniel
-    Project name: AreoBot U.N.
+    Project name: AreoponicBot U.N.
     Date: September 2018
     Location: Universidad National de Colombia sede Medellin
+    File name: main.py
 
     Description: main()
     
@@ -20,22 +21,20 @@ def main():
     print("main: ")
     
     # Global def
-    Tresh_Area = 0
-    Dist_Tresh = 150
-    Image_Directory = "/Users/hugodaniel/MATLAB-Drive/Medellin/Images/bebeplantes.jpg"
+    #Image_Directory = "/Users/hugodaniel/MATLAB-Drive/Medellin/Images/bebeplantes.jpg"
     
     #Garden initialisation
     G = AeroGarden.Garden()
     G.addRow()
-    G.addRow()
-    G.addBed(0, AeroGarden.Icorpor6x6())
-    G.addBed(1, AeroGarden.Icorpor6x6())
+    G.addBed(0, AeroGarden.IcorporTEST())
     
     G.displayGardenMap()
     G.addPlantMapGarden(0,0,0,0,AeroGarden.DictOfPlantes.myPlants[1])
     G.displayGardenMap()
-    G.addSetOfPlantsMap(AeroGarden.DictOfPlantes.myPlants[2],10)
+    G.addSetOfPlantsMap(AeroGarden.DictOfPlantes.myPlants[2],3)
     G.displayGardenMap()
+    G.updatePlantsArea()
+    G.displayGardenMapAreas()
     
     #G.updatePlantsArea()
     #G.displayGardenMapAreas()
