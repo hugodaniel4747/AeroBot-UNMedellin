@@ -13,19 +13,17 @@
 # Library
 import cv2
 import numpy as np
+from pathlib import Path
+from PIL import Image
 
-# Global def
-Tresh_Area = 100
-Dist_Tresh = 150
-
-def getImage(imageDirectory):
+def getImageFromComputer(image_directory):
     """
         Arguments:  Image directory
         Return:     Image
     """  
     
     ### Load a color image
-    img = cv2.imread(imageDirectory,-1)
+    img = cv2.imread('/Users/hugodaniel/Desktop/imageTest.jpg',-1)
     
     ### Resize image
     r = 1000.0 / img.shape[1]
@@ -45,8 +43,8 @@ def pipelineGetContours(colorImage):
     imgHSV = cv2.cvtColor(colorImage, cv2.COLOR_BGR2HSV)
     
     # Define range of blue color in HSV
-    lower_green = np.array([30,40,0])
-    upper_green = np.array([125,255,250])
+    lower_green = np.array([30,0,0])
+    upper_green = np.array([125,255,210])
     
     ### Make binarised image
     maskHSV = cv2.inRange(imgHSV, lower_green, upper_green)
@@ -200,13 +198,20 @@ def getTotalArea(listOfAreas):
         totalArea = totalArea + area[0]
     return totalArea
 
-def storeCapture(capture_name, directory=""):
-    camera = cv2.VideoCapture(0)
+def storeCapture(capture_name, image_directory=""):
+    camera = cv2.VideoCapture(1)
     ret, frame = camera.read()
-    cv2.imwrite(directory+capture_name, frame)
+    my_file = Path('/Users/hugodaniel/Desktop/imageTest.jpg')
+    if my_file.is_file():
+        cv2.imwrite('/Users/hugodaniel/Desktop/imageTest.jpg', frame)
+    else:
+        img = Image.new('RGB', (800,1280), (255, 255, 255))
+        img.save('imageTest.jpg', "JPEG")
+        cv2.imwrite('/Users/hugodaniel/Desktop/imageTest.jpg', frame)
+    
     
 def getCapture():
-    camera = cv2.VideoCapture(0)
+    camera = cv2.VideoCapture(1)
     ret, frame = camera.read()
     return frame
                         
