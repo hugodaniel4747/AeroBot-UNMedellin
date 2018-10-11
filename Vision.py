@@ -23,7 +23,7 @@ def getImageFromComputer(image_directory):
     """  
     
     ### Load a color image
-    img = cv2.imread('/Users/hugodaniel/Desktop/imageTest.jpg',-1)
+    img = cv2.imread(image_directory,-1)
     
     ### Resize image
     r = 1000.0 / img.shape[1]
@@ -44,7 +44,7 @@ def pipelineGetContours(colorImage):
     
     # Define range of blue color in HSV
     lower_green = np.array([30,0,0])
-    upper_green = np.array([125,255,210])
+    upper_green = np.array([100,255,210])
     
     ### Make binarised image
     maskHSV = cv2.inRange(imgHSV, lower_green, upper_green)
@@ -66,32 +66,39 @@ def drawAreasBoundingBox(image, contours, tresh_area):
     listOfAreas = []
     for c in contours:    
         if cv2.contourArea(c) > tresh_area: # Treshold value to eliminate little areas
-            # rectangle: get the bounding rect
+            drawContourBoundingBox(image, c, (0, 0, 255))
             x, y, w, h = cv2.boundingRect(c)
-            # draw a red rectangle to visualize the bounding rect
-            cv2.rectangle(image, (x, y), (x+w, y+h), (0, 0, 255), 1)         
-            """
-            # Rectangle in angle
-            rect = cv2.minAreaRect(c)
-            box = cv2.boxPoints(rect)
-            # convert all coordinates floating point values to int
-            box = np.int0(box)
-            # draw a red 'nghien' rectangle
-            cv2.drawContours(image, [box], 0, (0, 0, 255))
-            """
-            # Print the center of the square on image
             # get the center of mass of the area
             M = cv2.moments(c)
             # calculate x,y coordinate of center
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
-            cv2.circle(image, (cX, cY), 3, (0, 255, 0), -1)
-            #cv2.circle(image, (np.uint8(np.ceil(x/kpCnt)), np.uint8(np.ceil(y/kpCnt))), 1, (0, 0, 255), 3)
-            
             # save data
-            listOfAreas.append([cv2.contourArea(c), cX, cY, x, y, x+w, y+h]) # list of areas with their center of mass
+            listOfAreas.append([cv2.contourArea(c), cX, cY, x, y, x+w, y+h, c]) # list of areas with their center of mass
     return listOfAreas
 
+def drawContourBoundingBox(image, contour, square_color):
+    # rectangle: get the bounding rect
+    x, y, w, h = cv2.boundingRect(contour)
+    # draw a red rectangle to visualize the bounding rect
+    cv2.rectangle(image, (x, y), (x+w, y+h), square_color, 1)         
+    """
+    # Rectangle in angle
+    rect = cv2.minAreaRect(c)
+    box = cv2.boxPoints(rect)
+    # convert all coordinates floating point values to int
+    box = np.int0(box)
+    # draw a red 'nghien' rectangle
+    cv2.drawContours(image, [box], 0, (0, 0, 255))
+    """
+    # Print the center of the square on image
+    # get the center of mass of the area
+    M = cv2.moments(contour)
+    # calculate x,y coordinate of center
+    cX = int(M["m10"] / M["m00"])
+    cY = int(M["m01"] / M["m00"])
+    cv2.circle(image, (cX, cY), 3, (0, 255, 0), -1)
+    #cv2.circle(image, (np.uint8(np.ceil(x/kpCnt)), np.uint8(np.ceil(y/kpCnt))), 1, (0, 0, 255), 3)
 
 def analyseAreasProximity(listOfAreas, dist_tresh):
     """
@@ -143,9 +150,9 @@ def listComp(listOfArea1, listArea2):
             return False
     return True 
 
-def drawAreas(image, listOfAreas):
+def drawListOfAreas(image, listOfAreas):
     """
-        Arguments:  List of areas and the picture on witch you wanna print the
+        Arguments:  List of lists of areas and the picture on witch you wanna print the
                     areas
         Fonction:   Draw visual landmarks for user on the picture
     """
@@ -188,6 +195,35 @@ def drawAreas(image, listOfAreas):
         cv2.circle(image, (xVer2, yVer2), 3, (0, 255, 0), -1)
         """
         
+def drawAreas(image, listOfArea):
+    """
+        Arguments:  List of areas and the picture on witch you wanna print the
+                    areas
+        Fonction:   Draw visual landmarks for user on the picture
+    """
+    for area in listOfArea:
+        #Print a circle around the area using the extremums points of the bounding box
+        xVer1 = max(max(listOfArea, key=lambda x: x[3])[3], max(listOfArea, key=lambda x: x[5])[5])
+        yVer1 = max(max(listOfArea, key=lambda x: x[4])[4], max(listOfArea, key=lambda x: x[6])[6])
+        xVer2 = min(min(listOfArea, key=lambda x: x[3])[3], min(listOfArea, key=lambda x: x[5])[5])
+        yVer2 = min(min(listOfArea, key=lambda x: x[4])[4], min(listOfArea, key=lambda x: x[6])[6])
+        rayon = pow(pow(max(xVer1,xVer2)-min(xVer1,xVer2),2) + pow(max(yVer1,yVer2)-min(yVer1,yVer2),2),0.5)/2
+        circleXCentre = (max(xVer1,xVer2)-min(xVer1,xVer2))/2 + min(xVer1,xVer2)
+        circleYCentre = (max(yVer1,yVer2)-min(yVer1,yVer2))/2 + min(yVer1,yVer2)
+        cv2.circle(image, (int(circleXCentre), int(circleYCentre)), int(rayon), (0, 255, 0), 1)
+        totalArea = getTotalArea(listOfArea)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        bottomRightCornerOfText = (int((max(xVer1,xVer2)-min(xVer1,xVer2)) + min(xVer1,xVer2)), int((max(yVer1,yVer2)-min(yVer1,yVer2))) + min(yVer1,yVer2))
+        fontScale = 1
+        fontColor = (0,255,0)
+        lineType = 1
+        cv2.putText(image,str(totalArea),bottomRightCornerOfText, font, fontScale, fontColor, lineType)
+        """
+        #See the two choosen points
+        cv2.circle(image, (xVer1, yVer1), 3, (0, 255, 0), -1)
+        cv2.circle(image, (xVer2, yVer2), 3, (0, 255, 0), -1)
+        """
+        
 def getTotalArea(listOfAreas):
     """
         Arguments:  Takes a list of areas
@@ -198,20 +234,47 @@ def getTotalArea(listOfAreas):
         totalArea = totalArea + area[0]
     return totalArea
 
-def storeCapture(capture_name, image_directory=""):
-    camera = cv2.VideoCapture(1)
+def findCenterPlant(image, listOfAreas, tresh_radius):
+    """
+        Arguments:  image, list of all group areas, treshold distance with
+                    center to determine if area is in the center
+        Return:     Areas in the center
+    """
+    height = image.shape[0]
+    width = image.shape[1]
+    cv2.circle(image, (int(width/2), int(height/2)), 3, (255, 0, 0), -1)
+    
+    areaInCenter = []
+    for area in listOfAreas:
+        x_radius = abs(area[1] - int(width/2))
+        y_radius = abs(area[2] - int(height/2))
+        if x_radius < tresh_radius and y_radius < tresh_radius:
+            areaInCenter.append(area)
+            drawContourBoundingBox(image, area[7], (255, 0, 0))
+    return areaInCenter                    
+
+def storeCapture(capture_name, capture_directory="", webcam=0):
+    """
+        Arguments:  Capture name, capture directory, webcam
+        Return:     
+    """
+    camera = cv2.VideoCapture(webcam)
     ret, frame = camera.read()
-    my_file = Path('/Users/hugodaniel/Desktop/imageTest.jpg')
+    my_file = Path(capture_directory + "/" + capture_name)
     if my_file.is_file():
-        cv2.imwrite('/Users/hugodaniel/Desktop/imageTest.jpg', frame)
+        cv2.imwrite(capture_directory + "/" + capture_name, frame)
     else:
         img = Image.new('RGB', (800,1280), (255, 255, 255))
-        img.save('imageTest.jpg', "JPEG")
-        cv2.imwrite('/Users/hugodaniel/Desktop/imageTest.jpg', frame)
+        img.save(capture_name, "JPEG")
+        cv2.imwrite(capture_directory + "/" + capture_name, frame)
     
     
-def getCapture():
-    camera = cv2.VideoCapture(1)
+def getCapture(webcam=0):
+    """
+        Arguments:  webcam
+        Return:     capture
+    """
+    camera = cv2.VideoCapture(webcam)
     ret, frame = camera.read()
     return frame
                         

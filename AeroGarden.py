@@ -13,7 +13,7 @@
 
 import numpy as np
 import copy
-import MotorControl
+#import MotorControl
 import Vision
 
 
@@ -191,7 +191,7 @@ class Garden:
                 for line in range(bed.unitQuantityLength):
                     for column in range(bed.unitQuantityWidth):
                         if bed.bedMap[line][column] != None and bed.bedMap[line][column] != "Used":
-                            MotorControl.easyGoTo(bed.icorpor.icorporStepMap[line][column])
+                            #MotorControl.easyGoTo(bed.icorpor.icorporStepMap[line][column])
                             capture = Vision.getCapture()
                             contours = Vision.pipelineGetContours(capture)
                             listOfAreas = Vision.drawAreasBoundingBox(capture, contours, Vision.Tresh_Area)
