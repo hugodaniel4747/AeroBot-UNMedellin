@@ -15,10 +15,13 @@
 import cv2
 import AeroGarden
 import Vision
+import ToolChanger
 import warnings
 import serial
 import serial.tools.list_ports
 from time import sleep
+import Microchip
+import Test
 
 # Global def
 Tresh_Area = 100
@@ -44,6 +47,9 @@ def main():
     
     # Global def
     #Image_Directory = "/Users/hugodaniel/MATLAB-Drive/Medellin/Images/bebeplantes.jpg"
+
+    #Init Tool Changer
+    Tool = ToolChanger.Tool("Gripper")
     
     G = AeroGarden.Garden()
     #setUpGarden(G)
@@ -56,51 +62,51 @@ def main():
     
     #Interact with arduino
     output = " "
-    while True:
-        print("----" )
-        output = ser.readline()
-        while output != "":
-            print(output)
-            if output == "Enter new destination\n":
-                destination = raw_input('New destination: ')
-                ser.write(destination + '\r\n')
-                sleep(4)
+    try:
+        while True:
+            command = raw_input('Enter command: ')
+            if command == "Analog":
+                print("Analog value: ")
+                print(Tool.getAnalogInput())
+                print
+            if command == "Gripper":
+                position = raw_input('Enter a position: ')
                 
-                #Vision
-                #img = Vision.getCapture()
-                img = Vision.getCapture()
-                #img = Vision.getImageFromComputer("/Users/hugodaniel/Desktop/StageMedellin/Working_Images/bebePlantesCentre.jpg")
-                #img = Vision.getImageFromComputer("/pi/Desktop/imageTest.jpg")
-                contours = Vision.pipelineGetContours(img)
-                listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
-                listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)
-                #cv2.namedWindow("image")
-                #cv2.imshow("image",img)
-                #cv2.waitKey(0)
-                cv2.imwrite("imageTest.jpg", img) 
+            """
+            print("----" )
+            output = ser.readline()
+            while output != "":
+                print(output)
+                if output == "Enter new destination\n":
+                    destination = raw_input('New destination: ')
+                    ser.write(destination + '\r\n')
+                    sleep(4)
+                    
+                    #Vision
+                    #img = Vision.getCapture()
+                    img = Vision.getCapture()
+                    #img = Vision.getImageFromComputer("/Users/hugodaniel/Desktop/StageMedellin/Working_Images/bebePlantesCentre.jpg")
+                    #img = Vision.getImageFromComputer("/pi/Desktop/imageTest.jpg")
+                    contours = Vision.pipelineGetContours(img)
+                    listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
+                    listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)
+                    #cv2.namedWindow("image")
+                    #cv2.imshow("image",img)
+                    #cv2.waitKey(0)
+                    cv2.imwrite("imageTest.jpg", img)                    
+                output = ""
+            """
+            
                 
-            output = ""
+    except (KeyboardInterrupt):
+        print('\n', "Exit on Ctrl-C")
+        
+    except:
+        print("Other error or exception occurred!")
+        raise
     
-    """
-    #Plants detection
-    #Vision.storeCapture("imageTest.jpg", "/Users/hugodaniel/Desktop", 0)
-    img = Vision.getImageFromComputer("/Users/hugodaniel/Desktop/StageMedellin/Working_Images/bebePlantesCentre.jpg")
-    #img = Vision.getCapture()
-    contours = Vision.pipelineGetContours(img)
-    listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
-    #listOfAreasInsideTresh = Vision.analyseAreasProximity(listOfAreas, Dist_Tresh)
-    #listAreaGroup = Vision.findDuplicatesAreas(listOfAreasInsideTresh)
-    #Vision.drawListOfAreas(img, listAreaGroup)
-    
-    listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)
-    print(Vision.getTotalArea(listCenterAreas))
-    
-    cv2.namedWindow("image")
-    cv2.imshow("image",img)
-
-    cv2.waitKey(0)
-    """
-    
+    finally:
+        print()
     
 if __name__=="__main__":
     main()
