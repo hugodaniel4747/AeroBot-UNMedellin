@@ -28,7 +28,7 @@ def setUpArduino():
     arduino_ports = [
         p.device
         for p in serial.tools.list_ports.comports()
-        if 'ACM' or "Arduino" in p.description
+        if 'ACM' in p.description or "Arduino" in p.description 
     ]
     if not arduino_ports:
         raise IOError("No Arduino found")
@@ -68,14 +68,16 @@ def main():
                 
                 #Vision
                 #img = Vision.getCapture()
+                img = Vision.getCapture()
                 #img = Vision.getImageFromComputer("/Users/hugodaniel/Desktop/StageMedellin/Working_Images/bebePlantesCentre.jpg")
-                img = Vision.getImageFromComputer("/home/pi/Desktop/imageTest.jpg")
+                #img = Vision.getImageFromComputer("/pi/Desktop/imageTest.jpg")
                 contours = Vision.pipelineGetContours(img)
                 listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
                 listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)
-                cv2.namedWindow("image")
-                cv2.imshow("image",img)
-                cv2.waitKey(0)
+                #cv2.namedWindow("image")
+                #cv2.imshow("image",img)
+                #cv2.waitKey(0)
+                cv2.imwrite("imageTest.jpg", img) 
                 
             output = ""
     

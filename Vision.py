@@ -13,7 +13,8 @@
 # Library
 import cv2
 import numpy as np
-from pathlib import Path
+import os
+#from pathlib import os.path
 from PIL import Image
 
 def getImageFromComputer(image_directory):
@@ -50,7 +51,7 @@ def pipelineGetContours(colorImage):
     maskHSV = cv2.inRange(imgHSV, lower_green, upper_green)
     
     ### Find contours
-    _, contours, _ = cv2.findContours(maskHSV, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(maskHSV, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return contours
    
 
@@ -253,21 +254,14 @@ def findCenterPlant(image, listOfAreas, tresh_radius):
             drawContourBoundingBox(image, area[7], (255, 0, 0))
     return areaInCenter                    
 
-def storeCapture(capture_name, capture_directory="", webcam=0):
+def storeCapture(capture_name, webcam=0):
     """
-        Arguments:  Capture name, capture directory, webcam
+        Arguments:  Capture name, webcam
         Return:     
     """
     camera = cv2.VideoCapture(webcam)
     ret, frame = camera.read()
-    my_file = Path(capture_directory + "/" + capture_name)
-    if my_file.is_file():
-        cv2.imwrite(capture_directory + "/" + capture_name, frame)
-    else:
-        img = Image.new('RGB', (800,1280), (255, 255, 255))
-        img.save(capture_name, "JPEG")
-        cv2.imwrite(capture_directory + "/" + capture_name, frame)
-    
+    cv2.imwrite(capture_name, frame)     
     
 def getCapture(webcam=0):
     """
