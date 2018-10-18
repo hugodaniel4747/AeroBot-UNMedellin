@@ -50,7 +50,7 @@ def pipelineGetContours(colorImage):
     maskHSV = cv2.inRange(imgHSV, lower_green, upper_green)
     
     ### Find contours
-    _, contours, _ = cv2.findContours(maskHSV, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(maskHSV, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return contours
    
 
