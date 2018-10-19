@@ -34,7 +34,8 @@ def setUpArduino():
         if 'ACM' in p.description or "Arduino" in p.description 
     ]
     if not arduino_ports:
-        raise IOError("No Arduino found")
+        #raise IOError("No Arduino found")
+        return False
     if len(arduino_ports) > 1:
         warnings.warn('Multiple Arduinos found - using the first')
     
@@ -58,7 +59,8 @@ def main():
     
     arduino_ports = setUpArduino()
     #init serial comm between arduino and raspberry pi
-    ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
+    if arduino_ports != False:
+        ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
     
     #Interact with arduino
     output = " "
@@ -69,8 +71,14 @@ def main():
                 print("Analog value: ")
                 print(Tool.getAnalogInput())
                 print
+            if command == "change tool":
+                tool = raw_input('Enter new tool: ')
+                Tool.setCurrentTool(tool)
             if command == "Gripper":
                 position = raw_input('Enter a position: ')
+                Tool.current_tool.setGripperPosition(position)
+            if command == "distance":
+                print(Tool.current_tool.getDistance())
                 
             """
             print("----" )
@@ -99,6 +107,7 @@ def main():
             
                 
     except (KeyboardInterrupt):
+        Tool.cleanToolChanger()
         print('\n', "Exit on Ctrl-C")
         
     except:
@@ -106,7 +115,7 @@ def main():
         raise
     
     finally:
-        print()
+        print
     
 if __name__=="__main__":
     main()

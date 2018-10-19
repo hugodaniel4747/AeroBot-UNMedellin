@@ -33,14 +33,16 @@ class Tool:
         #init SPI for analog input
         self.SPI_bus = 0
         self.CE = 0
-        self.MCP3201 = Microchip.MCP3201(self.SPI_bus, self.CE)
-        
+        self.MCP3201 = Microchip.MCP3201(self.SPI_bus, self.CE)       
         sleep(2)
-        
+
+        self.setCurrentTool(tool)
+
+    def setCurrentTool(self, tool):
         if tool == "Gripper":
-            self.Gripper = Gripper(500)
+            self.current_tool = Gripper(500)
         elif tool == "Ultrasonic sensor":
-            self.UntrasonicSensor = UltrasonicSensor()
+            self.current_tool = UltrasonicSensor()
         
     def getAnalogInput(self):
         self.ADC_output_code = self.MCP3201.readADC_MSB()
@@ -53,7 +55,7 @@ class Tool:
         self.analog_voltage = (float(self.ADC_voltage_MSB) + float(self.ADC_voltage_LSB))/2       
         return self.analog_voltage
         
-    def cleanToolChanger():
+    def cleanToolChanger(self):
         pi.stop()
         GPIO.cleanup() 
        
@@ -66,18 +68,21 @@ class Gripper:
         self.position = position
         self.setGripperPosition(position)
         sleep(1)
+        
     def setGripperPosition(self, position):
         self.position = position
         pi.set_servo_pulsewidth(Raspberry_Digital_O, position)
         sleep(1)
+        
     def getGripperPosition(self):
         return self.position
     
 class UltrasonicSensor:
     def __init__(self):
-        self.distance = self.getDistance()  
         self.TRIG = Raspberry_Digital_O 
-        self.ECHO = Raspberry_Digital_I          
+        self.ECHO = Raspberry_Digital_I
+        self.distance = self.getDistance()  
+        
     def getDistance(self):
         distance_to_average = 0
         average_devider = 20
@@ -94,6 +99,8 @@ class UltrasonicSensor:
             raw_distance = round(raw_distance, 2)
             distance_to_average = distance_to_average + raw_distance
         self.distance = distance_to_average/average_devider
+        return self.distance
+    
     def getLastDistance(self):
         return self.distance
 
