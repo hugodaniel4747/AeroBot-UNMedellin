@@ -110,6 +110,3 @@ distance = Text(boxUltrasonicSensor, grid=[1,3])
 distance.repeat(500,updateUltrasonicSensorDistance)
 
 app.display()
-
-if __name__=="__main__":
-    main()
