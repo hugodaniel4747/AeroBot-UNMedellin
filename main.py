@@ -15,10 +15,13 @@
 import cv2
 import AeroGarden
 import Vision
+import ToolChanger
 import warnings
 import serial
 import serial.tools.list_ports
 from time import sleep
+import Microchip
+import Test
 
 # Global def
 Tresh_Area = 100
@@ -28,10 +31,11 @@ def setUpArduino():
     arduino_ports = [
         p.device
         for p in serial.tools.list_ports.comports()
-        if 'ACM' or "Arduino" in p.description
+        if 'ACM' in p.description or "Arduino" in p.description 
     ]
     if not arduino_ports:
-        raise IOError("No Arduino found")
+        #raise IOError("No Arduino found")
+        return False
     if len(arduino_ports) > 1:
         warnings.warn('Multiple Arduinos found - using the first')
     
@@ -44,6 +48,9 @@ def main():
     
     # Global def
     #Image_Directory = "/Users/hugodaniel/MATLAB-Drive/Medellin/Images/bebeplantes.jpg"
+
+    #Init Tool Changer
+    Tool = ToolChanger.Tool("Gripper")
     
     G = AeroGarden.Garden()
     #setUpGarden(G)
@@ -52,53 +59,63 @@ def main():
     
     arduino_ports = setUpArduino()
     #init serial comm between arduino and raspberry pi
-    ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
+    if arduino_ports != False:
+        ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
     
     #Interact with arduino
     output = " "
-    while True:
-        print("----" )
-        output = ser.readline()
-        while output != "":
-            print(output)
-            if output == "Enter new destination\n":
-                destination = raw_input('New destination: ')
-                ser.write(destination + '\r\n')
-                sleep(4)
+    try:
+        while True:
+            command = raw_input('Enter command: ')
+            if command == "Analog":
+                print("Analog value: ")
+                print(Tool.getAnalogInput())
+                print
+            if command == "change tool":
+                tool = raw_input('Enter new tool: ')
+                Tool.setCurrentTool(tool)
+            if command == "Gripper":
+                position = raw_input('Enter a position: ')
+                Tool.current_tool.setGripperPosition(position)
+            if command == "distance":
+                print(Tool.current_tool.getDistance())
                 
-                #Vision
-                #img = Vision.getCapture()
-                #img = Vision.getImageFromComputer("/Users/hugodaniel/Desktop/StageMedellin/Working_Images/bebePlantesCentre.jpg")
-                img = Vision.getImageFromComputer("/home/pi/Desktop/imageTest.jpg")
-                contours = Vision.pipelineGetContours(img)
-                listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
-                listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)
-                cv2.namedWindow("image")
-                cv2.imshow("image",img)
-                cv2.waitKey(0)
+            """
+            print("----" )
+            output = ser.readline()
+            while output != "":
+                print(output)
+                if output == "Enter new destination\n":
+                    destination = raw_input('New destination: ')
+                    ser.write(destination + '\r\n')
+                    sleep(4)
+                    
+                    #Vision
+                    #img = Vision.getCapture()
+                    img = Vision.getCapture()
+                    #img = Vision.getImageFromComputer("/Users/hugodaniel/Desktop/StageMedellin/Working_Images/bebePlantesCentre.jpg")
+                    #img = Vision.getImageFromComputer("/pi/Desktop/imageTest.jpg")
+                    contours = Vision.pipelineGetContours(img)
+                    listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
+                    listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)
+                    #cv2.namedWindow("image")
+                    #cv2.imshow("image",img)
+                    #cv2.waitKey(0)
+                    cv2.imwrite("imageTest.jpg", img)                    
+                output = ""
+            """
+            
                 
-            output = ""
+    except (KeyboardInterrupt):
+        Tool.cleanToolChanger()
+        print('\n', "Exit on Ctrl-C")
+        
+    except:
+        print("Other error or exception occurred!")
+        raise
     
-    """
-    #Plants detection
-    #Vision.storeCapture("imageTest.jpg", "/Users/hugodaniel/Desktop", 0)
-    img = Vision.getImageFromComputer("/Users/hugodaniel/Desktop/StageMedellin/Working_Images/bebePlantesCentre.jpg")
-    #img = Vision.getCapture()
-    contours = Vision.pipelineGetContours(img)
-    listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
-    #listOfAreasInsideTresh = Vision.analyseAreasProximity(listOfAreas, Dist_Tresh)
-    #listAreaGroup = Vision.findDuplicatesAreas(listOfAreasInsideTresh)
-    #Vision.drawListOfAreas(img, listAreaGroup)
-    
-    listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)
-    print(Vision.getTotalArea(listCenterAreas))
-    
-    cv2.namedWindow("image")
-    cv2.imshow("image",img)
-
-    cv2.waitKey(0)
-    """
-    
+    finally:
+        print
     
 if __name__=="__main__":
     main()
