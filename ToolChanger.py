@@ -16,6 +16,7 @@ from time import sleep
 import time
 import pigpio
 import Microchip
+
 Raspberry_Digital_I = 23
 Raspberry_Digital_O = 18
 
@@ -28,6 +29,7 @@ class Tool:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(Raspberry_Digital_O, GPIO.OUT)
         GPIO.setup(Raspberry_Digital_I, GPIO.IN)
+
         #init SPI for analog input
         self.SPI_bus = 0
         self.CE = 0

@@ -33,6 +33,22 @@ def getImageFromComputer(image_directory):
     img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
     return img
 
+def resizeImage(image_directory, resize_multiple):
+    """
+        Arguments:  Image directory
+        Return:     Image
+        Comment:    This function change resolutionof an image for ever
+    """  
+    ### Load a color image
+    img = cv2.imread(image_directory,-1)
+    
+    ### Resize image
+    r = resize_multiple / img.shape[1]
+    dim = (resize_multiple, int(img.shape[0] * r))    
+    # perform the actual resizing of the image
+    img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+    cv2.imwrite(image_directory, img)
+
 def pipelineGetContours(colorImage):
     """
         Arguments:  Image in color
@@ -252,6 +268,12 @@ def findCenterPlant(image, listOfAreas, tresh_radius):
         if x_radius < tresh_radius and y_radius < tresh_radius:
             areaInCenter.append(area)
             drawContourBoundingBox(image, area[7], (255, 0, 0))
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            bottomRightCornerOfText = (area[5], area[6])
+            fontScale = 1
+            fontColor = (0,255,0)
+            lineType = 1
+            cv2.putText(image,str(area[0]),bottomRightCornerOfText, font, fontScale, fontColor, lineType)
     return areaInCenter                    
 
 def storeCapture(capture_name, webcam=0):
