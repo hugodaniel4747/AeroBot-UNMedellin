@@ -4,9 +4,15 @@
     Project name: AreoponicBot U.N.
     Date: September 2018
     Location: Universidad National de Colombia sede Medellin
+<<<<<<< HEAD
     File name: ToolChanger.py
 
     Description: Tool changer control algorythmes
+=======
+    File name: Gripper.py
+
+    Description: Gripper control algorythmes
+>>>>>>> 614cd38b55401daf7ae8c90ed9392dfe941cf6bd
     
     
 """
@@ -15,21 +21,32 @@ import RPi.GPIO as GPIO
 from time import sleep
 import time
 import pigpio
+<<<<<<< HEAD
 import Microchip
 
 
+=======
+
+Raspberry_Analog_I = 24
+>>>>>>> 614cd38b55401daf7ae8c90ed9392dfe941cf6bd
 Raspberry_Digital_I = 23
 Raspberry_Digital_O = 18
 
 pi = pigpio.pi()
+<<<<<<< HEAD
 
 
 class Tool:    
+=======
+ 
+class ToolChanger:    
+>>>>>>> 614cd38b55401daf7ae8c90ed9392dfe941cf6bd
     def __init__(self, tool):
         #init GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(Raspberry_Digital_O, GPIO.OUT)
         GPIO.setup(Raspberry_Digital_I, GPIO.IN)
+<<<<<<< HEAD
         #init SPI for analog input
         self.SPI_bus = 0
         self.CE = 0
@@ -59,6 +76,20 @@ class Tool:
         pi.stop()
         GPIO.cleanup() 
        
+=======
+        GPIO.setup(Raspberry_Analog_I, GPIO.IN)
+        sleep(2)
+        
+        if tool == "Gripper":
+            self.Gripper = Gripper(500)
+        elif tool == "Ultrasonic sensor":
+            self.UntrasonicSensor = UltrasonicSensor()
+        
+    def cleanToolChanger():
+        pi.stop()
+        GPIO.cleanup() 
+        
+>>>>>>> 614cd38b55401daf7ae8c90ed9392dfe941cf6bd
         
  
 
@@ -68,21 +99,33 @@ class Gripper:
         self.position = position
         self.setGripperPosition(position)
         sleep(1)
+<<<<<<< HEAD
         
+=======
+>>>>>>> 614cd38b55401daf7ae8c90ed9392dfe941cf6bd
     def setGripperPosition(self, position):
         self.position = position
         pi.set_servo_pulsewidth(Raspberry_Digital_O, position)
         sleep(1)
+<<<<<<< HEAD
         
+=======
+>>>>>>> 614cd38b55401daf7ae8c90ed9392dfe941cf6bd
     def getGripperPosition(self):
         return self.position
     
 class UltrasonicSensor:
     def __init__(self):
+<<<<<<< HEAD
         self.TRIG = Raspberry_Digital_O 
         self.ECHO = Raspberry_Digital_I
         self.distance = self.getDistance()  
         
+=======
+        self.distance = self.getDistance()  
+        self.TRIG = Raspberry_Digital_O 
+        self.ECHO = Raspberry_Digital_I          
+>>>>>>> 614cd38b55401daf7ae8c90ed9392dfe941cf6bd
     def getDistance(self):
         distance_to_average = 0
         average_devider = 20
@@ -99,10 +142,17 @@ class UltrasonicSensor:
             raw_distance = round(raw_distance, 2)
             distance_to_average = distance_to_average + raw_distance
         self.distance = distance_to_average/average_devider
+<<<<<<< HEAD
         return self.distance
     
+=======
+>>>>>>> 614cd38b55401daf7ae8c90ed9392dfe941cf6bd
     def getLastDistance(self):
         return self.distance
 
         
+<<<<<<< HEAD
         
+=======
+        
+>>>>>>> 614cd38b55401daf7ae8c90ed9392dfe941cf6bd
