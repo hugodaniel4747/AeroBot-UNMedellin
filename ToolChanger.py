@@ -40,7 +40,7 @@ class Tool:
 
     def setCurrentTool(self, tool):
         if tool == "Gripper":
-            self.current_tool = Gripper(500)
+            self.current_tool = Gripper(1900)
         elif tool == "Ultrasonic sensor":
             self.current_tool = UltrasonicSensor()
         elif tool == "EC and temperature sensor":

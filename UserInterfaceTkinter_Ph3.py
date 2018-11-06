@@ -20,7 +20,7 @@ from time import sleep
 # Global def
 Tresh_Area = 100
 Dist_Tresh = 150
-My_Path = "/Users/hugodaniel/Desktop/StageMedellin/GitRepo"
+My_Path = "/home/pi/Documents/GitRepo"
 
 
 def setUpArduino():
@@ -54,7 +54,8 @@ class CurrentPosition:
         self.input_CNC.bind('<Return>',self.updateCNCPosition)
 
     def updateCNCPosition(self, event):
-        self.CNC_current_position.configure(text=3000)
+        Tool.current_tool.setGripperPosition(self.input_CNC.get())
+        #self.CNC_current_position.configure(str(self.input_CNC.get()))
 
 class Capture:
     # Capture
@@ -167,32 +168,32 @@ class Gripper:
         self.blurGripperImage()
 
     def openGripper(self):
-        Tool.current_tool.setGripperPosition(2500)
+        Tool.current_tool.setGripperPosition(1900)
         
         self.gripper_state.configure(text="Open")
         self.openGripperImage()
         
     def closeGripper(self):
-        Tool.current_tool.setGripperPosition(500)
+        Tool.current_tool.setGripperPosition(1400)
         
         self.gripper_state.configure(text="Close")
         self.closeGripperImage()
         
     def openGripperImage(self):
-        Vision.resizeImage(My_Path+"/GripperOpen.png", 100)
-        self.capture = tk.PhotoImage(file=(My_Path+"/GripperOpen.png"))
+        Vision.resizeImage("/home/pi/Documents/GitRepo/GripperOpen.png", 100)
+        self.capture = tk.PhotoImage(file=("/home/pi/Documents/GitRepo/GripperOpen.png"))
         self.canvas.create_image(50,50,image=self.capture)
         self.canvas.image = self.capture
         
     def closeGripperImage(self):
-        Vision.resizeImage(My_Path+"/GripperClose.png", 100)
-        self.capture = tk.PhotoImage(file=(My_Path+"/GripperClose.png"))
+        Vision.resizeImage("/home/pi/Documents/GitRepo/GripperClose.png", 100)
+        self.capture = tk.PhotoImage(file=("/home/pi/Documents/GitRepo/GripperClose.png"))
         self.canvas.create_image(50,50,image=self.capture)
         self.canvas.image = self.capture
         
     def blurGripperImage(self):
-        Vision.resizeImage(My_Path+"/GripperBlur.png", 100)
-        self.capture = tk.PhotoImage(file=(My_Path+"/GripperBlur.png"))
+        Vision.resizeImage("/home/pi/Documents/GitRepo/GripperBlur.png", 100)
+        self.capture = tk.PhotoImage(file=("/home/pi/Documents/GitRepo/GripperBlur.png"))
         self.canvas.create_image(50,50,image=self.capture)
         self.canvas.image = self.capture
 
@@ -309,6 +310,7 @@ if __name__ == "__main__":
     
     #Inint tool changer
     Tool = ToolChanger.Tool("None")
+    Tool.setCurrentTool("Gripper")
     #Init Garden
     G = AeroGarden.Garden()
     #setUpGarden(G)
