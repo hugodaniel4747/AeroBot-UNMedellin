@@ -64,31 +64,31 @@ class Capture:
         self.capture2.grid(column=1, row=0)
 
     def takePhoto(self):
-        Vision.storeCapture("/Users/hugodaniel/Desktop/imageTest.png")
-        Vision.resizeImage("/Users/hugodaniel/Desktop/imageTest.png", 1000)
+        Vision.storeCapture("/home/pi/Desktop/imageTest.png")
+        Vision.resizeImage("/home/pi/Desktop/imageTest.png", 1000)
         self.top = tk.Toplevel()
         self.top.title("Capture")
         self.canvas = tk.Canvas(self.top, width=1000, height=600)
         self.canvas.pack(fill="both", expand=True)
-        self.capture = tk.PhotoImage(file="/Users/hugodaniel/Desktop/imageTest.png")
+        self.capture = tk.PhotoImage(file="/home/pi/Desktop/imageTest.png")
         self.canvas.create_image(500,300,image=self.capture)
         self.canvas.image = self.capture
     
     def analysePlants(self):
         #Plants detection
-        Vision.storeCapture("/Users/hugodaniel/Desktop/imageTest.png")
-        self.img = Vision.getImageFromComputer("/Users/hugodaniel/Desktop/imageTest.png")
+        Vision.storeCapture("/home/pi/Desktop/imageTest.png")
+        self.img = Vision.getImageFromComputer("/home/pi/Desktop/imageTest.png")
         self.contours = Vision.pipelineGetContours(self.img)
         self.listOfAreas = Vision.drawAreasBoundingBox(self.img, self.contours, Tresh_Area)
         self.listCenterAreas = Vision.findCenterPlant(self.img, self.listOfAreas, 200)
         
-        cv2.imwrite("/Users/hugodaniel/Desktop/imageTest.png", self.img)
+        cv2.imwrite("/home/pi/Desktop/imageTest.png", self.img)
 
         self.top = tk.Toplevel()
         self.top.title("Analyse capture")
         self.canvas = tk.Canvas(self.top, width=1000, height=600)
         self.canvas.pack(fill="both", expand=True)
-        self.capture = tk.PhotoImage(file="/Users/hugodaniel/Desktop/imageTest.png")
+        self.capture = tk.PhotoImage(file="/home/pi/Desktop/imageTest.png")
         self.canvas.create_image(500,300,image=self.capture)
         self.canvas.image = self.capture
 
@@ -156,20 +156,20 @@ class Gripper:
         self.closeGripperImage()
         
     def openGripperImage(self):
-        Vision.resizeImage("/Users/hugodaniel/Desktop/StageMedellin/GitRepo/GripperOpen.png", 100)
-        self.capture = tk.PhotoImage(file="/Users/hugodaniel/Desktop/StageMedellin/GitRepo/GripperOpen.png")
+        Vision.resizeImage("/home/pi/Documents/GitRepo/GripperOpen.png", 100)
+        self.capture = tk.PhotoImage(file="/home/pi/Documents/GitRepo/GripperOpen.png")
         self.canvas.create_image(50,50,image=self.capture)
         self.canvas.image = self.capture
         
     def closeGripperImage(self):
-        Vision.resizeImage("/Users/hugodaniel/Desktop/StageMedellin/GitRepo/GripperClose.png", 100)
-        self.capture = tk.PhotoImage(file="/Users/hugodaniel/Desktop/StageMedellin/GitRepo/GripperClose.png")
+        Vision.resizeImage("/home/pi/Documents/GitRepo/GripperClose.png", 100)
+        self.capture = tk.PhotoImage(file="/home/pi/Documents/GitRepo/GripperClose.png")
         self.canvas.create_image(50,50,image=self.capture)
         self.canvas.image = self.capture
         
     def blurGripperImage(self):
-        Vision.resizeImage("/Users/hugodaniel/Desktop/StageMedellin/GitRepo/GripperBlur.png", 100)
-        self.capture = tk.PhotoImage(file="/Users/hugodaniel/Desktop/StageMedellin/GitRepo/GripperBlur.png")
+        Vision.resizeImage("/home/pi/Documents/GitRepo/GripperBlur.png", 100)
+        self.capture = tk.PhotoImage(file="/home/pi/Documents/GitRepo/GripperBlur.png")
         self.canvas.create_image(50,50,image=self.capture)
         self.canvas.image = self.capture
 
