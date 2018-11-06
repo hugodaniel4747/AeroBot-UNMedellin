@@ -180,20 +180,20 @@ class Gripper:
         self.closeGripperImage()
         
     def openGripperImage(self):
-        Vision.resizeImage("/home/pi/Documents/GitRepo/GripperOpen.png", 100)
-        self.capture = tk.PhotoImage(file=("/home/pi/Documents/GitRepo/GripperOpen.png"))
+        Vision.resizeImage(My_Path+"/GripperOpen.png", 100)
+        self.capture = tk.PhotoImage(file=(My_Path+"/GripperOpen.png"))
         self.canvas.create_image(50,50,image=self.capture)
         self.canvas.image = self.capture
         
     def closeGripperImage(self):
-        Vision.resizeImage("/home/pi/Documents/GitRepo/GripperClose.png", 100)
-        self.capture = tk.PhotoImage(file=("/home/pi/Documents/GitRepo/GripperClose.png"))
+        Vision.resizeImage(My_Path+"/GripperClose.png", 100)
+        self.capture = tk.PhotoImage(file=(My_Path+"/GripperClose.png"))
         self.canvas.create_image(50,50,image=self.capture)
         self.canvas.image = self.capture
         
     def blurGripperImage(self):
-        Vision.resizeImage("/home/pi/Documents/GitRepo/GripperBlur.png", 100)
-        self.capture = tk.PhotoImage(file=("/home/pi/Documents/GitRepo/GripperBlur.png"))
+        Vision.resizeImage(My_Path+"/GripperBlur.png", 100)
+        self.capture = tk.PhotoImage(file=(My_Path+"/GripperBlur.png"))
         self.canvas.create_image(50,50,image=self.capture)
         self.canvas.image = self.capture
 
