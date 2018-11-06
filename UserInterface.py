@@ -68,17 +68,16 @@ def takePhoto():
     Picture(app2, image="/Users/hugodaniel/Desktop/imageTest.jpg")
     
 def analysePlants():
-    app2 = App()
-    
     #Plants detection
-    Vision.storeCapture("/Users/hugodaniel/Desktop/imageTest.jpg",1)
+    Vision.storeCapture("/Users/hugodaniel/Desktop/imageTest.jpg")
     img = Vision.getImageFromComputer("/Users/hugodaniel/Desktop/imageTest.jpg")
     contours = Vision.pipelineGetContours(img)
     listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
     listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)
     
     cv2.imwrite("/Users/hugodaniel/Desktop/imageTest.jpg", img)
-    Picture(app2, image="/Users/hugodaniel/Desktop/imageTest.jpg")
+    app3 = App()
+    Picture(app3, image="/Users/hugodaniel/Desktop/imageTest.jpg")
 
 
 
