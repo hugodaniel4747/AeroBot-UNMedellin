@@ -43,8 +43,12 @@ class Tool:
             self.current_tool = Gripper(500)
         elif tool == "Ultrasonic sensor":
             self.current_tool = UltrasonicSensor()
-        else
-            self.current_too = None
+        elif tool == "EC and temperature sensor":
+            self.current_tool = ECTempSensor()
+        elif tool == "Ph sensor":
+            self.current_tool = PhSensor()
+        else:
+            self.current_tool = None
         
     def getAnalogInput(self):
         self.ADC_output_code = self.MCP3201.readADC_MSB()
@@ -99,5 +103,15 @@ class UltrasonicSensor:
     def getLastDistance(self):
         return self.distance
 
+class ECTempSensor:
+    def __init__(self):
+        self.ec_temp = self.getEcTemp()  
+    def getEcTemp(self):
+        return 40;
         
+class PhSensor:
+    def __init__(self):
+        self.ph = self.getPh()  
+    def getPh(self):
+        return 40;
 

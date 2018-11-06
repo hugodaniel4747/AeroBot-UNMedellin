@@ -66,16 +66,16 @@ def main():
     output = " "
     try:
         while True:
-            command = raw_input('Enter command: ')
+            command = input('Enter command: ')
             if command == "Analog":
                 print("Analog value: ")
                 print(Tool.getAnalogInput())
                 print
             if command == "change tool":
-                tool = raw_input('Enter new tool: ')
+                tool = input('Enter new tool: ')
                 Tool.setCurrentTool(tool)
             if command == "Gripper":
-                position = raw_input('Enter a position: ')
+                position = input('Enter a position: ')
                 Tool.current_tool.setGripperPosition(position)
             if command == "distance":
                 print(Tool.current_tool.getDistance())

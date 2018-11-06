@@ -13,9 +13,8 @@
 # Library
 import cv2
 import numpy as np
-import os
-#from pathlib import os.path
-from PIL import Image
+
+
 
 def getImageFromComputer(image_directory):
     """
@@ -283,9 +282,9 @@ def storeCapture(capture_name, webcam=0):
     """
     camera = cv2.VideoCapture(webcam)
     # Adjust camera lighting
-    ramp_frames = 30
+    ramp_frames = 20
     for i in range(ramp_frames):
-        temp = camera.read()
+        temp = camera.read() #Initialise the camera to lithning
     ret, frame = camera.read()
     cv2.imwrite(capture_name, frame)     
     
@@ -298,8 +297,8 @@ def getCapture(webcam=0):
     # Adjust camera lighting
     ramp_frames = 30
     for i in range(ramp_frames):
-        temp = camera.read()
+        temp = camera.read() #Initialise the camera to lithning
     ret, frame = camera.read()
     return frame
-                        
+
 
