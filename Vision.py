@@ -67,7 +67,7 @@ def pipelineGetContours(colorImage):
     maskHSV = cv2.inRange(imgHSV, lower_green, upper_green)
     
     ### Find contours
-    contours, _ = cv2.findContours(maskHSV, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours, _ = cv2.findContours(maskHSV, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return contours
    
 
@@ -282,6 +282,10 @@ def storeCapture(capture_name, webcam=0):
         Return:     
     """
     camera = cv2.VideoCapture(webcam)
+    # Adjust camera lighting
+    ramp_frames = 30
+    for i in range(ramp_frames):
+        temp = camera.read()
     ret, frame = camera.read()
     cv2.imwrite(capture_name, frame)     
     
@@ -291,6 +295,10 @@ def getCapture(webcam=0):
         Return:     capture
     """
     camera = cv2.VideoCapture(webcam)
+    # Adjust camera lighting
+    ramp_frames = 30
+    for i in range(ramp_frames):
+        temp = camera.read()
     ret, frame = camera.read()
     return frame
                         

@@ -43,6 +43,8 @@ class Tool:
             self.current_tool = Gripper(500)
         elif tool == "Ultrasonic sensor":
             self.current_tool = UltrasonicSensor()
+        else
+            self.current_too = None
         
     def getAnalogInput(self):
         self.ADC_output_code = self.MCP3201.readADC_MSB()
