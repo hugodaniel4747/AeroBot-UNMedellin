@@ -15,17 +15,16 @@
 import cv2
 import AeroGarden
 import Vision
-import ToolChanger
+#import ToolChanger
 import warnings
 import serial
 import serial.tools.list_ports
 from time import sleep
-import Microchip
-import Test
 
 # Global def
 Tresh_Area = 100
 Dist_Tresh = 150
+My_Path = "/Users/hugodaniel/Desktop/StageMedellin/GitRepo/Image"
 
 def setUpArduino():
     arduino_ports = [
@@ -41,84 +40,12 @@ def setUpArduino():
     
     return arduino_ports
 
-
-
-def main():   
-    print("main: ")
-    
-    # Global def
-    #Image_Directory = "/Users/hugodaniel/MATLAB-Drive/Medellin/Images/bebeplantes.jpg"
-
-    #Init Tool Changer
-    Tool = ToolChanger.Tool("Gripper")
-    
-    G = AeroGarden.Garden()
-    #setUpGarden(G)
-    #G.updatePlantsArea()
-    #G.displayGardenMapAreas()
-    
-    arduino_ports = setUpArduino()
-    #init serial comm between arduino and raspberry pi
-    if arduino_ports != False:
-        ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
-    
-    #Interact with arduino
-    output = " "
-    try:
-        while True:
-            command = input('Enter command: ')
-            if command == "Analog":
-                print("Analog value: ")
-                print(Tool.getAnalogInput())
-                print
-            if command == "change tool":
-                tool = input('Enter new tool: ')
-                Tool.setCurrentTool(tool)
-            if command == "Gripper":
-                position = input('Enter a position: ')
-                Tool.current_tool.setGripperPosition(position)
-            if command == "distance":
-                print(Tool.current_tool.getDistance())
-                
-            """
-            print("----" )
-            output = ser.readline()
-            while output != "":
-                print(output)
-                if output == "Enter new destination\n":
-                    destination = raw_input('New destination: ')
-                    ser.write(destination + '\r\n')
-                    sleep(4)
-                    
-                    #Vision
-                    #img = Vision.getCapture()
-                    img = Vision.getCapture()
-                    #img = Vision.getImageFromComputer("/Users/hugodaniel/Desktop/StageMedellin/Working_Images/bebePlantesCentre.jpg")
-                    #img = Vision.getImageFromComputer("/pi/Desktop/imageTest.jpg")
-                    contours = Vision.pipelineGetContours(img)
-                    listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
-                    listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)
-                    #cv2.namedWindow("image")
-                    #cv2.imshow("image",img)
-                    #cv2.waitKey(0)
-                    cv2.imwrite("imageTest.jpg", img)                    
-                output = ""
-            """
-            
-                
-    except (KeyboardInterrupt):
-        Tool.cleanToolChanger()
-        print('\n', "Exit on Ctrl-C")
-        
-    except:
-        print("Other error or exception occurred!")
-        raise
-    
-    finally:
-        print
-    
-if __name__=="__main__":
-    main()
+def isInt(s):
+    try: 
+        int(s)
+        return True
+    except ValueError:
+        return False
     
 def setUpGarden(GARDEN):
     #Garden initialisation
@@ -133,6 +60,131 @@ def setUpGarden(GARDEN):
     GARDEN.displayGardenMap()
     GARDEN.updatePlantsArea()
     GARDEN.displayGardenMapAreas()
+
+def main():   
+    print("main: ")
+    
+    # Global def
+    #Image_Directory = "/Users/hugodaniel/MATLAB-Drive/Medellin/Images/bebeplantes.jpg"
+
+    #Init Tool Changer
+    #Tool = ToolChanger.Tool("Gripper")
+    
+    G = AeroGarden.Garden()
+    #setUpGarden(G)
+    #G.updatePlantsArea()
+    #G.displayGardenMapAreas()
+    
+    #arduino_ports = setUpArduino()
+    #init serial comm between arduino and raspberry pi
+    #if arduino_ports != False:
+    #    ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
+    
+    #Interact with arduino
+    tool = "None"
+    try:
+        while True:
+            command = input('Enter command: ')
+            
+            if command == "help":
+                print("Tap:")
+                print("Analog")
+                print("Robot position")
+                print("Robot position -> exit")
+                print("Capture")
+                print("Analyse capture")
+                print("tool")
+                print("tool -> Current tool")
+                print("tool -> open (Gripper tool)")
+                print("tool -> close (Gripper tool)")
+                print("tool -> go to (Gripper tool)")
+                print("tool -> get (Ultrasonic sensor tool)")
+                print("tool -> get (EC and temp tool)")
+                print("tool -> get (Ph sensor tool)")
+                print("tool -> exit")
+                print("Change tool")
+                print()
+                
+            elif command == "Analog":
+                #print("Analog value: " + Tool.getAnalogInput())
+                print()
+                
+            elif command == "Robot position":
+                while True:
+                    second_command = input('Enter a command or position: ')
+                    if second_command == "exit":
+                        break
+                    elif isInt(second_command):
+                        print("Code not implemented")
+                    else:
+                        print("not a valid command")
+            elif command == "Capture":
+                Vision.storeCapture(My_Path+"/imageTest.png")
+                Vision.resizeImage(My_Path+"/imageTest.png", 1000)
+            elif command == "Analyse capture": 
+                #Plants detection
+                Vision.storeCapture(My_Path+"/imageTest.png")
+                img = Vision.getImageFromComputer(My_Path+"/imageTest.png")
+                contours = Vision.pipelineGetContours(img)
+                listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
+                listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)        
+                cv2.imwrite(My_Path+"/imageTest.png", img)
+                
+            elif command == "tool":
+                while True:
+                    second_command = input('Enter a tool command: ')                    
+                    if tool == "Gripper":
+                        if second_command == "open":
+                            #Tool.current_tool.setGripperPosition(1900)
+                            print("not activated")
+                        elif second_command == "close":
+                            #Tool.current_tool.setGripperPosition(1400)
+                            print("not activated")
+                        elif second_command == "go to":
+                            position = input('Enter a position: ')
+                            print("not activated")
+                            #Tool.current_tool.setGripperPosition(position)
+                            print("not activated")
+                    elif tool == "Ultrasonic sensor":
+                        if second_command == "get":
+                            print("Code not implemented")
+                    elif tool == "EC and temp sensor":
+                        if second_command == "get":
+                            print("Code not implemented")
+                    elif tool == "PH sensor":
+                        if second_command == "get":
+                            print("Code not implemented")
+                    elif second_command == "exit":
+                        break
+                    if second_command == "current tool":
+                        print(tool)
+                    else:
+                        print("not a valid command")                                                
+                        
+            elif command == "change tool":
+                tool = input('Enter a new tool: ')
+                #Tool.setCurrentTool(tool)  
+                print("New tool: " + tool + " set")
+                
+            else:
+                print("not a valid command")
+                
+    except (KeyboardInterrupt):
+        #Tool.cleanToolChanger()
+        print('\n', "Exit on Ctrl-C")
+        
+    except:
+        print("Other error or exception occurred!")
+        raise
+    
+    finally:
+        print
+    
+if __name__=="__main__":
+    main()
+    
+
+
 
 
 

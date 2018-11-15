@@ -216,9 +216,8 @@ class UltrasonicSensor:
         self.text_ultrasonic_sensor.grid(column=0, row =0)
         self.distance_untrasonic_sensor = tk.Label(frame)
         self.distance_untrasonic_sensor.grid(column=1, row =0)
+        self.frame.after(500, self.updateUltrasonicSensor)
         self.distance_untrasonic_sensor.configure(text="--")
-        #self.frame.after(500, self.updateUltrasonicSensor)
-        #self.distance_untrasonic_sensor.grid_remove()
         
         #Init ultrasonic sensor image
         self.canvas = tk.Canvas(self.frame_photo, width=100, height=100, state=tk.DISABLED)
@@ -419,7 +418,7 @@ if __name__ == "__main__":
     #G.displayGardenMapAreas()
     
     master = tk.Tk()
-    MainApplication(master)
+    main_window = MainApplication(master)
     while True:
         try:
             master.mainloop()
