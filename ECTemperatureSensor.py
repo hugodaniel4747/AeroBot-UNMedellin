@@ -24,11 +24,19 @@ Created on Wed Nov  7 11:59:30 2018
  #
 
 import time
+from time import sleep
 import os
+import Microchip
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 temp_sensor = "sys/bus/w1/devices/28-000005e2fdc3/w1_slave"
+
+#init SPI for analog input
+SPI_bus = 0
+CE = 0
+MCP3201 = Microchip.MCP3201(SPI_bus, CE)       
+sleep(2)
 
 
 def temp_raw():
@@ -50,6 +58,18 @@ def read_temp():
         temp_string = lines[1].strip()[temp_output+2:]
         temp_c = float(temp_string) / 1000.0
         return temp_c
+    
+def getAnalogInput():
+    ADC_output_code = MCP3201.readADC_MSB()
+    ADC_voltage_MSB = MCP3201.convert_to_voltage(ADC_output_code)
+    #print("MCP3201 voltage: %0.2f V" % self.ADC_voltage_MSB)
+    sleep(0.1)
+    ADC_output_code = MCP3201.readADC_LSB()
+    ADC_voltage_LSB = MCP3201.convert_to_voltage(ADC_output_code)
+    #print("MCP3201 voltage: %0.2f V" % self.ADC_voltage_LSB)
+    analog_voltage = (float(ADC_voltage_MSB) + float(ADC_voltage_LSB))/2       
+    return analog_voltage
+
 
 StartConvert = 0
 ReadTemperature = 1
@@ -93,7 +113,7 @@ def loop():
          # subtract the last reading:
         AnalogValueTotal = AnalogValueTotal - readings[index]
         # read from the sensor:
-        readings[index] = analogRead(ECsensorPin)
+        readings[index] = getAnalogInput
         # add the reading to the total:
         AnalogValueTotal = AnalogValueTotal + readings[index]
         # advance to the next position in the array:
@@ -183,3 +203,6 @@ def TempProcess(ch):
         
     return TemperatureSum  
 """    
+
+if __name__=="__main__":
+    loop()
