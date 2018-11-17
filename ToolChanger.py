@@ -16,10 +16,12 @@ from time import sleep
 import time
 import pigpio
 import Microchip
+import os
 
 Raspberry_Digital_I = 23
 Raspberry_Digital_O = 18
 
+os.system("pigpiod")
 pi = pigpio.pi()
 
 
