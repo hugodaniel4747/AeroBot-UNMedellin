@@ -86,15 +86,14 @@ def loop():
     #DS18B20_Pin = 2             #DS18B20 signal, pin on digital 2
     AnalogSampleInterval = 25
     printInterval = 700
-    tempSampleInterval = 850    #analog sample interval;serial print interval;temperature sample interval
-    readings = []       #3the readings from the analog input
+    tempSampleInterval = 850    #analog sample interval;serial print interval;temperature sample interval    
     AnalogAverage = 0
     averageVoltage = 0          #the average
     AnalogSampleTime = 0
     printTime = 0
     
     #initialize all the readings to 0:
-    readings= np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    readings = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) #3the readings from the analog input
     #TempProcess(StartConvert)   #let the DS18B20 start the convert
     tempSampleTime = time.time()
     
