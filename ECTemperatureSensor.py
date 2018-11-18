@@ -23,13 +23,14 @@ Created on Wed Nov  7 11:59:30 2018
  #        DS18B20 digital pin -> Digital pin 2
  #
 
+import subprocess
 import time
 from time import sleep
 import os
 import Microchip
 
-os.system('modprobe w1-gpio')
-os.system('modprobe w1-therm')
+subprocess.getstatusoutput('sudo dtoverlay w1-gpio gpiopin=4 pullup=0')
+subprocess.getstatusoutput('sudo w1-term')
 temp_sensor = "sys/bus/w1/devices/28-000005e2fdc3/w1_slave"
 
 #init SPI for analog input
@@ -97,12 +98,12 @@ for thisReading in range(numReadings):
 #TempProcess(StartConvert)   #let the DS18B20 start the convert
 tempSampleTime = time.time()
 
+AnalogSampleTime = time.time()
 
-def loop():
+def loop(AnalogSampleTime):
   
     #Every once in a while,sample the analog value and calculate the average.
       
-    AnalogSampleTime = time.time()
     AnalogValueTotal = 0        #the running total
     index = 0                   #the index of the current reading
     tempSampleTime = 0
