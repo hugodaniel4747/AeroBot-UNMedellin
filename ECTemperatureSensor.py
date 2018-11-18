@@ -28,6 +28,7 @@ import time
 from time import sleep
 import os
 import Microchip
+import numpy as np
 
 subprocess.getstatusoutput('sudo dtoverlay w1-gpio gpiopin=4 pullup=0')
 subprocess.getstatusoutput('sudo w1-term')
@@ -93,8 +94,7 @@ def loop():
     printTime = 0
     
     #initialize all the readings to 0:
-    for thisReading in range(numReadings):
-        readings[thisReading] = 0
+    readings= np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     #TempProcess(StartConvert)   #let the DS18B20 start the convert
     tempSampleTime = time.time()
     
