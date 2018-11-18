@@ -1,6 +1,6 @@
 """
 
-    Editor: Hugo Daniel
+    Autor: Hugo Daniel
     Project name: AreoponicBot U.N.
     Date: September 2018
     Location: Universidad National de Colombia sede Medellin
@@ -12,17 +12,18 @@
 """
 
 import subprocess
+# Init pigpiod Deamon
 subprocess.getstatusoutput('sudo pigpiod')
 import RPi.GPIO as GPIO
 from time import sleep
 import time
 import pigpio
-import Microchip
+import Microchip # For analog module
 
 Raspberry_Digital_I = 23
 Raspberry_Digital_O = 18
 
-pi = pigpio.pi()
+pi = pigpio.pi() # Creat instance og pigpoi.pi to control the servo motor of the gripper
 
 
 class Tool:    

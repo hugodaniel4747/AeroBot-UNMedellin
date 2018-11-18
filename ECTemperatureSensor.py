@@ -1,11 +1,16 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Nov  7 11:59:30 2018
-
-@author: hugodaniel
 """
 
+    Autor: Hugo Daniel
+    Project name: AreoponicBot U.N.
+    Date: September 2018
+    Location: Universidad National de Colombia sede Medellin
+    File name: ECTemperatureSensor.py
+
+    Description: EC and temperature sensor code
+    
+    STATE: NOT TERMINATED
+    
+"""
  # 
  # Editor     : YouYou from DFRobot
  # Date       : 23.04.2014
@@ -26,7 +31,6 @@ Created on Wed Nov  7 11:59:30 2018
 import subprocess
 import time
 from time import sleep
-import os
 import Microchip
 import numpy as np
 

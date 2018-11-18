@@ -1,9 +1,15 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Wed Nov  7 13:44:05 2018
 
-@author: hugodaniel
+    Autor: Hugo Daniel
+    Project name: AreoponicBot U.N.
+    Date: September 2018
+    Location: Universidad National de Colombia sede Medellin
+    File name: PhSensor.py
+
+    Description: Ph sensor code
+    
+    STATE: NOT TERMINATED    
+    
 """
 
 import time
