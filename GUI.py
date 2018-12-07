@@ -29,6 +29,7 @@ import warnings
 import serial
 import serial.tools.list_ports
 
+
 # Global def
 Tresh_Area = 100
 Dist_Tresh = 150

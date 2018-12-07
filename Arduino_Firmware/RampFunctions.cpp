@@ -1,99 +1,81 @@
 #include "Arduino_Firmware.h"
 
 
-long rampUp(long ramp_direction, long min_time, long steps_to_perform, char axis, long resolution_multiplier)
+long rampUp(long ramp_direction, long min_time, long steps_to_perform, long resolution_multiplier)
 {
   //ramp_direction: 1 for ramp up and 0 for ramp down
   //ramp_time: ramp time in ms
   //steps_to_perform: number of steps to perform
-  int step_pin = 0;
-  int dir_pin = 0;
-  
-  if(axis == 'x')
-  {
-    step_pin = X_STEP;
-    dir_pin = X_DIR;
-  }
-  else if(axis == 'y')
-  {
-    step_pin = Y_STEP;
-    dir_pin = Y_DIR;
-  }
-  else if(axis == 'z')
-  {
-    step_pin = Z_STEP;
-    dir_pin = Z_DIR;
-  }
-  else
-  {
-    return 1;
-  }
   
   if(ramp_direction == 1)
   {
-   digitalWrite(dir_pin,HIGH); // Enables the motor to move in a particular direction
+   digitalWrite(M1_XDIR,HIGH); // Enables the motor to move in a particular direction
+   digitalWrite(M2_XDIR,HIGH);
+   digitalWrite(M3_XDIR,LOW);
+   digitalWrite(M4_XDIR,LOW);
   }
   else if(ramp_direction == 0)
   {
-    digitalWrite(dir_pin,LOW); // Enables the motor to move in a particular direction
+    digitalWrite(M1_XDIR,LOW); // Enables the motor to move in a particular direction
+    digitalWrite(M2_XDIR,LOW);
+    digitalWrite(M3_XDIR,HIGH);
+    digitalWrite(M4_XDIR,HIGH);
   }
 
   long total_time = ramp_start_time/resolution_multiplier;
   double dt_dx = (double(ramp_start_time)/double(resolution_multiplier) - double(min_time)/double(resolution_multiplier))/(double(steps_to_perform)*double(resolution_multiplier));
   for(long x=0; x < steps_to_perform*resolution_multiplier; x = x + 1)
   {
-    digitalWrite(step_pin,HIGH); 
+    digitalWrite(M1_XSTEP,HIGH); 
+    digitalWrite(M2_XSTEP,HIGH); 
+    digitalWrite(M3_XSTEP,HIGH); 
+    digitalWrite(M4_XSTEP,HIGH); 
     delayMicroseconds(total_time); 
-    digitalWrite(step_pin,LOW); 
+    digitalWrite(M1_XSTEP,LOW); 
+    digitalWrite(M2_XSTEP,LOW);
+    digitalWrite(M3_XSTEP,LOW);
+    digitalWrite(M4_XSTEP,LOW);
     delayMicroseconds(total_time); 
     total_time = ramp_start_time/resolution_multiplier - long(x*dt_dx);  
   }
-  //Serial.println(500*dt_dx);
+  
 }
 
-long rampDown(long ramp_direction, long min_time, long steps_to_perform, char axis, long resolution_multiplier)
+long rampDown(long ramp_direction, long min_time, long steps_to_perform, long resolution_multiplier)
 {
   //ramp_direction: 1 for ramp up and 0 for ramp down
   //ramp_time: ramp time in ms
   //steps_to_perform: number of steps to perform
-  int step_pin = 0;
-  int dir_pin = 0;
-  if(axis == 'x')
+
+  // Set direction
+   if(ramp_direction == 1)
   {
-    step_pin = X_STEP;
-    dir_pin = X_DIR;
-  }
-  else if(axis == 'y')
-  {
-    step_pin = Y_STEP;
-    dir_pin = Y_DIR;
-  }
-  else if(axis == 'z')
-  {
-    step_pin = Z_STEP;
-    dir_pin = Z_DIR;
-  }
-  else
-  {
-    return 1;
-  }
-  
-  if(ramp_direction == 1)
-  {
-   digitalWrite(dir_pin,HIGH); // Enables the motor to move in a particular direction
+   digitalWrite(M1_XDIR,HIGH); // Enables the motor to move in a particular direction
+   digitalWrite(M2_XDIR,HIGH);
+   digitalWrite(M3_XDIR,LOW);
+   digitalWrite(M4_XDIR,LOW);
   }
   else if(ramp_direction == 0)
   {
-    digitalWrite(dir_pin,LOW); // Enables the motor to move in a particular direction
+    digitalWrite(M1_XDIR,LOW); // Enables the motor to move in a particular direction
+    digitalWrite(M2_XDIR,LOW);
+    digitalWrite(M3_XDIR,HIGH);
+    digitalWrite(M4_XDIR,HIGH);
   }
 
   long total_time = ramp_start_time/resolution_multiplier;
   double dt_dx = (double(ramp_start_time)/double(resolution_multiplier) - double(min_time)/double(resolution_multiplier))/(double(steps_to_perform)*double(resolution_multiplier));
   for(long x=0; x < steps_to_perform*resolution_multiplier; x = x + 1)
   {
-    digitalWrite(step_pin,HIGH); 
+    digitalWrite(M1_XSTEP,HIGH); 
+    digitalWrite(M2_XSTEP,HIGH); 
+    digitalWrite(M3_XSTEP,HIGH); 
+    digitalWrite(M4_XSTEP,HIGH); 
     delayMicroseconds(total_time); 
-    digitalWrite(step_pin,LOW); 
+    digitalWrite(M1_XSTEP,LOW); 
+    digitalWrite(M2_XSTEP,LOW); 
+    digitalWrite(M3_XSTEP,LOW); 
+    digitalWrite(M4_XSTEP,LOW); 
     delayMicroseconds(total_time); 
     total_time = min_time/resolution_multiplier + long(x*dt_dx);  
   }
@@ -138,30 +120,30 @@ void goToWithRamp(long *initial_position, long *final_position, long speed_time,
   long ramp_dist= 0;
   // x axis
   ramp_dist = rampSelector(x_dist);
-  rampUp(x_dir, speed_time, ramp_dist, 'x', resolution_multiplier);
+  rampUp(x_dir, speed_time, ramp_dist, resolution_multiplier);
   if(final_position[0] >= initial_position[0])
   {
-    initial_position[0] = goToCoordanate(initial_position[0]+ramp_dist, final_position[0]-ramp_dist, 'x', speed_time, resolution_multiplier);
+    initial_position[0] = goToCoordonate(initial_position[0]+ramp_dist, final_position[0]-ramp_dist, 'x', speed_time, resolution_multiplier);
   }
   else
   {
-    initial_position[0] = goToCoordanate(initial_position[0]-ramp_dist, final_position[0]+ramp_dist, 'x', speed_time, resolution_multiplier);
+    initial_position[0] = goToCoordonate(initial_position[0]-ramp_dist, final_position[0]+ramp_dist, 'x', speed_time, resolution_multiplier);
   }
-  rampDown(x_dir, speed_time, ramp_dist, 'x', resolution_multiplier);
+  rampDown(x_dir, speed_time, ramp_dist, resolution_multiplier);
   initial_position[0] = final_position[0];
 
   /*
   // y axis
   ramp_dist = rampSelector(y_dist);
   rampUp(y_dir, speed_time, ramp_dist, 'y', resolution_multiplier);
-  initial_position[1] = goToCoordanate(initial_position[1]+ramp_dist, final_position[1]-ramp_dist, 'y', speed_time, resolution_multiplier);
+  initial_position[1] = goToCoordonate(initial_position[1]+ramp_dist, final_position[1]-ramp_dist, 'y', speed_time, resolution_multiplier);
   rampDown(y_dir, speed_time, ramp_dist, 'y', resolution_multiplier);
   initial_position[1] = final_position[1];
 
   // z axis
   ramp_dist = rampSelector(z_dist);
   rampUp(z_dir, speed_time, ramp_dist, 'z', resolution_multiplier);
-  initial_position[2] = goToCoordanate(initial_position[2]+ramp_dist, final_position[2]-ramp_dist, 'z', speed_time, resolution_multiplier);
+  initial_position[2] = goToCoordonate(initial_position[2]+ramp_dist, final_position[2]-ramp_dist, 'z', speed_time, resolution_multiplier);
   rampDown(z_dir, speed_time, ramp_dist, 'z', resolution_multiplier);
   initial_position[2] = final_position[2];
   */

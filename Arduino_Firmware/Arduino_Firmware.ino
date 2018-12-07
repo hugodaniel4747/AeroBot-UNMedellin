@@ -1,7 +1,7 @@
 
 #include "Arduino_Firmware.h"
 
-String resolution = "1/16";
+String resolution = "Full";
 long initial_position[3] = {0, 0, 0};
 long final_position[3] = {0, 0, 0};
 long speed_time = 100;
@@ -25,6 +25,7 @@ void setup()
   
   // Sets pins as Outputs
   initGPIO();
+  setupEnable();
   resolution_multiplier = setupResolution("1/16");
 }
 void loop()
