@@ -1,13 +1,12 @@
 
 #include "Arduino_Firmware.h"
 
-String resolution = "Full";
-long initial_position[3] = {0, 0, 0};
-long final_position[3] = {0, 0, 0};
-long speed_time = 100;
-long ramp_start_time = 800;
-long resolution_multiplier = 1000000;
-String str = "";
+long steps_to_perform = 0;
+int dir = 0;
+int int_axis = 0;
+int axis = 0;
+int enable = 0;
+
 String inString = "";    // string to hold input
 
 void setup()
@@ -21,73 +20,64 @@ void setup()
     ; // wait for serial port to connect. Needed for native USB port only
   }
   Serial.print("Program Starts\n");
-  Serial.print("Enter new destination\n");
   
   // Sets pins as Outputs
   initGPIO();
   setupEnable();
-  resolution_multiplier = setupResolution("1/16");
+  setupResolution(resolution_multiplier);
 }
+
+long val = 0;
+
+int counter = 0;
+int tableau[4] = {0,0,0,0};
+
 void loop()
 {
   //SECTION INTERFACE UTILISATEUR
   // Read serial input:
+  
   while (Serial.available() > 0)
   {
-    
-    int inChar = Serial.read();
+    char inChar = Serial.read();
     if (isDigit(inChar))
     {
       // convert the incoming byte to a char and add it to the string:
       inString += (char)inChar;
     }
-    // if you get a newline, print the string, then the string's value:
+            
+    // if you  a newline, get the instruction
     if (inChar == '\n')
     {
-      final_position[0] = inString.toInt();
+      val = inString.toInt();
+     
       inString = "";
-      //Serial.print("Going to position: ");
-      //Serial.print(final_position[0]);
-      //Serial.print("\n");
-      goToWithRamp(initial_position, final_position, speed_time, resolution_multiplier);
-      //Serial.print("Arrived at position: ");
-      //Serial.print(initial_position[0]);
-      //Serial.print("\n");
-      Serial.print("Enter new destination\n");
-      delay(1000);
+      tableau[counter] = val;
+      counter++;
     }
   }
-  //if (Serial.available()) //Lecture du buffer Serial
-  //{
-    /*str = Serial.readString();
-    if (str == "end")
-    {
-      Serial.print("Going to: End...\n");
-      final_position[0] = 3000;
-      Serial.print("Enter new destination\n");
-    }
-    else if (str == "start")
-    {
-      Serial.print("Going to: Start...\n");
-      final_position[0] = 0;
-      Serial.print("Enter new destination\n");
-    }*/
-    //str = Serial.readString();
-    //Serial.println(toInt(str));
-    //goToWithRamp(initial_position, final_position, speed_time, resolution_multiplier);
-    //delay(1000);
-  //}
-  /*
-  final_position[0] = 3000;
-  
-  goToWithRamp(initial_position, final_position, speed_time, resolution_multiplier);
-  //goTo(initial_position, final_position, speed_time, resolution_multiplier);
-  delay(1000);
-  final_position[0] = 0;
-  goToWithRamp(initial_position, final_position, speed_time, resolution_multiplier);
-  //goTo(initial_position, final_position, speed_time, resolution_multiplier);
-  delay(1000);
-  */
+  if(counter > 3)
+  {
+    counter = 0;
+    Serial.print('[');
+    Serial.print(tableau[0]);
+    Serial.print(',');
+    Serial.print(tableau[1]);
+    Serial.print(',');
+    Serial.print(tableau[2]);
+    Serial.print(',');
+    Serial.print(tableau[3]);
+    Serial.print("]\n");
+
+    //Execute command
+    axis = convertAxis(tableau[0]);
+    steps_to_perform = tableau[1];
+    dir = tableau[2];
+    enable = tableau[3];
+    enableMotor(axis, enable);
+    goToWithRamp(steps_to_perform, dir, axis);
+  }
 }
+  
 
 

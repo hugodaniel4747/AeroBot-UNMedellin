@@ -1,40 +1,18 @@
 #include "Arduino_Firmware.h"
 
-
-long goToCoordonate(long initial_position, long final_position, char axis, long speed_time, long resolution_multiplier)
-{
-  if(axis == 'x')
-  {
-    xAxis_goToCoordonate(initial_position, final_position, speed_time, resolution_multiplier);
-  }
-  else if(axis == 'y')
-  {
-    //goToCoordanate_Y(initial_position, final_position, speed_time, resolution_multiplier);
-  }
-  else if(axis == 'z')
-  {
-    //goToCoordanate_Z(initial_position, final_position, speed_time, resolution_multiplier);
-  }
-  else
-  {
-    return 1;
-  }
-}
-
-long xAxis_goToCoordonate(long initial_position, long final_position, long speed_time, long resolution_multiplier)
+void goToCoordonate_X(long steps_to_perform,long dir)
 { 
-  long steps_to_perform;
-  steps_to_perform = abs(final_position - initial_position);
-
+  long current_speed_time = 0;
+  
   // Set direction
-  if(final_position >= initial_position)
+  if(dir == 0)
   {
    digitalWrite(M1_XDIR,HIGH); // Enables the motor to move in a particular direction
    digitalWrite(M2_XDIR,HIGH);
    digitalWrite(M3_XDIR,LOW);
    digitalWrite(M4_XDIR,LOW);
   }
-  else
+  else if (dir == 1)
   {
     digitalWrite(M1_XDIR,LOW); // Enables the motor to move in a particular direction
     digitalWrite(M2_XDIR,LOW);
@@ -44,8 +22,13 @@ long xAxis_goToCoordonate(long initial_position, long final_position, long speed
 
   if(steps_to_perform < 500)
   {
-    speed_time = low_speed_time;
+    current_speed_time = low_speed_time;
   }
+  else
+  {
+    current_speed_time = speed_time;
+  }
+  
   for(long x = 0; x < steps_to_perform*resolution_multiplier; x++)
   {
     digitalWrite(M1_XSTEP,HIGH); 
@@ -59,80 +42,71 @@ long xAxis_goToCoordonate(long initial_position, long final_position, long speed
     digitalWrite(M4_XSTEP,LOW); 
     delayMicroseconds(speed_time/resolution_multiplier);
    }
-   return final_position;
 }
-/*
-long goToCoordonate_Y(long initial_position, long final_position, long speed_time, long resolution_multiplier)
-{
-  int step_pin = 0;
-  int dir_pin = 0;
 
+void goToCoordonate_Y(long steps_to_perform,long dir)
+{ 
+  long current_speed_time = 0;
   
-  long steps_to_perform;
-  steps_to_perform = abs(final_position - initial_position);
-  if(final_position >= initial_position)
+  // Set direction
+  if(dir == 0)
   {
-   digitalWrite(dir_pin,HIGH); // Enables the motor to move in a particular direction
+   digitalWrite(M5_YDIR,HIGH); // Enables the motor to move in a particular direction
   }
-  else
+  else if (dir == 1)
   {
-    digitalWrite(dir_pin,LOW); // Enables the motor to move in a particular direction
+    digitalWrite(M5_YDIR,LOW); // Enables the motor to move in a particular direction
   }
 
   if(steps_to_perform < 500)
   {
-    speed_time = low_speed_time;
-  }
-  for(long x = 0; x < steps_to_perform*resolution_multiplier; x++)
-  {
-    digitalWrite(step_pin,HIGH); 
-    delayMicroseconds(speed_time/resolution_multiplier); 
-    digitalWrite(step_pin,LOW); 
-    delayMicroseconds(speed_time/resolution_multiplier);
-   }
-   return final_position;
-}
-
-long goToCoordonate_Z(long initial_position, long final_position, long speed_time, long resolution_multiplier)
-{
-  int step_pin = 0;
-  int dir_pin = 0;
-
-  
-  long steps_to_perform;
-  steps_to_perform = abs(final_position - initial_position);
-  if(final_position >= initial_position)
-  {
-   digitalWrite(dir_pin,HIGH); // Enables the motor to move in a particular direction
+    current_speed_time = low_speed_time;
   }
   else
   {
-    digitalWrite(dir_pin,LOW); // Enables the motor to move in a particular direction
+    current_speed_time = speed_time;
+  }
+  
+  for(long x = 0; x < steps_to_perform*resolution_multiplier; x++)
+  {
+    digitalWrite(M5_YSTEP,HIGH); 
+    delayMicroseconds(speed_time/resolution_multiplier); 
+    digitalWrite(M5_YSTEP,LOW); 
+    delayMicroseconds(speed_time/resolution_multiplier);
+   }
+}
+
+void goToCoordonate_Z(long steps_to_perform,long dir)
+{ 
+  long current_speed_time = 0;
+  
+  // Set direction
+  if(dir == 0)
+  {
+   digitalWrite(M6_ZDIR,HIGH); // Enables the motor to move in a particular direction
+  }
+  else if (dir == 1)
+  {
+    digitalWrite(M6_ZDIR,LOW); // Enables the motor to move in a particular direction
   }
 
   if(steps_to_perform < 500)
   {
-    speed_time = low_speed_time;
+    current_speed_time = low_speed_time;
   }
+  else
+  {
+    current_speed_time = speed_time;
+  }
+  
   for(long x = 0; x < steps_to_perform*resolution_multiplier; x++)
   {
-    digitalWrite(step_pin,HIGH); 
+    digitalWrite(M6_ZSTEP,HIGH); 
     delayMicroseconds(speed_time/resolution_multiplier); 
-    digitalWrite(step_pin,LOW); 
+    digitalWrite(M6_ZSTEP,LOW); 
     delayMicroseconds(speed_time/resolution_multiplier);
    }
-   return final_position;
 }
-*/
-void goTo(long *initial_position, long *final_position, long speed_time, long resolution_multiplier)
-{
-  // initial_position[] is a matrix of the initial position [x, y, z]
-  // final_position[] is a matrix of the final position [x, y, z]
-  initial_position[0] = goToCoordonate(initial_position[0], final_position[0], 'x', speed_time, resolution_multiplier);
-  //initial_position[1] = goToCoordonate(initial_position[1], final_position[1], 'y', speed_time, resolution_multiplier);
-  //final_position[2] = goToCoordonate(initial_position[2], final_position[2], 'z', speed_time, resolution_multiplier);
-}
-
 
 
 

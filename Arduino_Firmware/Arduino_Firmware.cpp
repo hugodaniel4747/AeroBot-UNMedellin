@@ -33,44 +33,75 @@ void setupEnable(void)
   digitalWrite(EZ,LOW);
 }
 
-long setupResolution(char *resolution)
+void setupResolution(int resolution)
 {
-  long resolution_multiplier = 0;
-  if(resolution == "Full")
+  if(resolution == 1)
   {
     digitalWrite(S1,LOW);
     digitalWrite(S2,LOW);
     digitalWrite(S3,LOW);
-    resolution_multiplier = 1;
   }
-  else if(resolution == "Half")
+  else if(resolution == 2)
   {
     digitalWrite(S1,HIGH);
     digitalWrite(S2,LOW);
     digitalWrite(S3,LOW);
-    resolution_multiplier = 2;
   }
-  else if(resolution == "1/4")
+  else if(resolution == 4)
   {
     digitalWrite(S1,LOW);
     digitalWrite(S2,HIGH);
     digitalWrite(S3,LOW);
-    resolution_multiplier = 4;
   }
-  else if(resolution == "1/8")
+  else if(resolution == 8)
   {
     digitalWrite(S1,HIGH);
     digitalWrite(S2,HIGH);
     digitalWrite(S3,LOW);
-    resolution_multiplier = 8;
   }
   else 
   {
     digitalWrite(S1,HIGH);
     digitalWrite(S2,HIGH);
     digitalWrite(S3,HIGH);
-    resolution_multiplier = 16;
   }
-  return resolution_multiplier;
+}
+
+void enableMotor(char axis,int enable)
+{
+  //Enable LOW (0) enables the motors, HIGH (1) disables thems
+  if (enable = 1)
+  {
+    if (axis == 'x')
+    {
+      digitalWrite(EX,HIGH);
+    }
+    if (axis == 'y')
+    {
+      digitalWrite(EY,HIGH);
+    }
+    if (axis == 'z')
+    {
+      digitalWrite(EZ,HIGH);
+    }
+  }
+}
+
+char convertAxis(int int_axis)
+{
+  char axis = "";
+  if (int_axis == 0)
+  {
+    axis = 'x';
+  }
+  else if (int_axis == 1)
+  {
+    axis = 'y';
+  }
+  else if (int_axis == 2)
+  {
+    axis = 'z';
+  }
+  return axis;
 }
 

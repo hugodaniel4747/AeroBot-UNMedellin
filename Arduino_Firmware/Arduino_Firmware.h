@@ -36,36 +36,33 @@ const int S1 = 14;
 const int S2 = 15;
 const int S3 = 16;
 
-// define slowest PWM
+// define controls constants
+const int resolution_multiplier = 16;
+const int speed_time = 100;
 const int low_speed_time = 700;
-
-//Global variables
-extern String resolution;
-extern long initial_position[3];
-extern long final_position[3];
-extern long speed_time;
-extern long ramp_start_time;
-
-//Structures
-struct Robot {
-  long robot_position[];
-  char resolution;
-  long resolution_multiplier;
-};
+const int ramp_start_time = 800;
 
 //Declare Functions
 void initGPIO();
 long rampSelector(long dist);
 void setupEnable(void);
-long setupResolution(char *resolution);
-long goToCoordonate(long initial_position, long final_position, char axis, long speed_time, long resolution_multiplier);
-long xAxis_goToCoordonate(long initial_position, long final_position, long speed_time, long resolution_multiplier);
-//long goToCoordonate(long initial_position, long final_position, char axis, long speed_time, long resolution_multiplier);
-//long goToCoordonate(long initial_position, long final_position, char axis, long speed_time, long resolution_multiplier);
-long rampUp(long ramp_direction, long min_time, long steps_to_perform, long resolution_multiplier);
-long rampDown(long ramp_direction, long min_time, long steps_to_perform, long resolution_multiplier);
-void goTo(long *initial_position, long *final_position, long speed_time, long resolution_multiplier);
-void goToWithRamp(long *initial_position, long *final_position, long speed_time, long resolution_multiplier);
+void enableMotor(char axis, int enable);
+void setupResolution(int resolution);
+char convertAxis(int int_axis);
+
+void goToCoordonate_X(long steps_to_perform, long dir);
+void goToCoordonate_Y(long steps_to_perform, long dir);
+void goToCoordonate_Z(long steps_to_perform, long dir);
+
 long rampSelector(long dist);
+long rampUp_X(long ramp_direction, long min_time, long steps_to_perform);
+long rampDown_X(long ramp_direction, long min_time, long steps_to_perform);
+long rampUp_Y(long ramp_direction, long min_time, long steps_to_perform);
+long rampDown_Y(long ramp_direction, long min_time, long steps_to_perform);
+long rampUp_Z(long ramp_direction, long min_time, long steps_to_perform);
+long rampDown_Z(long ramp_direction, long min_time, long steps_to_perform);
+void goToWithRamp(long steps_to_perform, long dir, char axis);
+
+
 
 #endif

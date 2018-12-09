@@ -1,20 +1,21 @@
 #include "Arduino_Firmware.h"
 
 
-long rampUp(long ramp_direction, long min_time, long steps_to_perform, long resolution_multiplier)
+long rampUp_X(long ramp_direction, long min_time, long steps_to_perform)
 {
   //ramp_direction: 1 for ramp up and 0 for ramp down
   //ramp_time: ramp time in ms
   //steps_to_perform: number of steps to perform
-  
-  if(ramp_direction == 1)
+
+  //Direction
+  if(ramp_direction == 0)
   {
    digitalWrite(M1_XDIR,HIGH); // Enables the motor to move in a particular direction
    digitalWrite(M2_XDIR,HIGH);
    digitalWrite(M3_XDIR,LOW);
    digitalWrite(M4_XDIR,LOW);
   }
-  else if(ramp_direction == 0)
+  else if(ramp_direction == 1)
   {
     digitalWrite(M1_XDIR,LOW); // Enables the motor to move in a particular direction
     digitalWrite(M2_XDIR,LOW);
@@ -24,6 +25,8 @@ long rampUp(long ramp_direction, long min_time, long steps_to_perform, long reso
 
   long total_time = ramp_start_time/resolution_multiplier;
   double dt_dx = (double(ramp_start_time)/double(resolution_multiplier) - double(min_time)/double(resolution_multiplier))/(double(steps_to_perform)*double(resolution_multiplier));
+
+  //PWM
   for(long x=0; x < steps_to_perform*resolution_multiplier; x = x + 1)
   {
     digitalWrite(M1_XSTEP,HIGH); 
@@ -41,21 +44,21 @@ long rampUp(long ramp_direction, long min_time, long steps_to_perform, long reso
   
 }
 
-long rampDown(long ramp_direction, long min_time, long steps_to_perform, long resolution_multiplier)
+long rampDown_X(long ramp_direction, long min_time, long steps_to_perform)
 {
   //ramp_direction: 1 for ramp up and 0 for ramp down
   //ramp_time: ramp time in ms
   //steps_to_perform: number of steps to perform
 
-  // Set direction
-   if(ramp_direction == 1)
+  // Direction
+   if(ramp_direction == 0)
   {
    digitalWrite(M1_XDIR,HIGH); // Enables the motor to move in a particular direction
    digitalWrite(M2_XDIR,HIGH);
    digitalWrite(M3_XDIR,LOW);
    digitalWrite(M4_XDIR,LOW);
   }
-  else if(ramp_direction == 0)
+  else if(ramp_direction == 1)
   {
     digitalWrite(M1_XDIR,LOW); // Enables the motor to move in a particular direction
     digitalWrite(M2_XDIR,LOW);
@@ -65,6 +68,8 @@ long rampDown(long ramp_direction, long min_time, long steps_to_perform, long re
 
   long total_time = ramp_start_time/resolution_multiplier;
   double dt_dx = (double(ramp_start_time)/double(resolution_multiplier) - double(min_time)/double(resolution_multiplier))/(double(steps_to_perform)*double(resolution_multiplier));
+  
+  // PWM
   for(long x=0; x < steps_to_perform*resolution_multiplier; x = x + 1)
   {
     digitalWrite(M1_XSTEP,HIGH); 
@@ -81,72 +86,161 @@ long rampDown(long ramp_direction, long min_time, long steps_to_perform, long re
   }
 }
 
-void goToWithRamp(long *initial_position, long *final_position, long speed_time, long resolution_multiplier)
+long rampUp_Y(long ramp_direction, long min_time, long steps_to_perform)
 {
-  // initial_position is a matrix of the initial position [x, y, z]
-  // final_position is a matrix of the final position [x, y, z]
-  int x_dir;
-  int y_dir;
-  int z_dir;
-  if(final_position[0] >= initial_position[0])
+  //ramp_direction: 1 for ramp up and 0 for ramp down
+  //ramp_time: ramp time in ms
+  //steps_to_perform: number of steps to perform
+
+  //Direction
+  if(ramp_direction == 0)
   {
-   x_dir = 1; // Enables the motor to move in a particular direction
+   digitalWrite(M5_YDIR,HIGH); // Enables the motor to move in a particular direction
   }
-  else
+  else if(ramp_direction == 1)
   {
-    x_dir = 0; // Enables the motor to move in a particular direction
+    digitalWrite(M5_YDIR,LOW); // Enables the motor to move in a particular direction
   }
-  if(final_position[1] >= initial_position[1])
+
+  long total_time = ramp_start_time/resolution_multiplier;
+  double dt_dx = (double(ramp_start_time)/double(resolution_multiplier) - double(min_time)/double(resolution_multiplier))/(double(steps_to_perform)*double(resolution_multiplier));
+
+  //PWM
+  for(long x=0; x < steps_to_perform*resolution_multiplier; x = x + 1)
   {
-   y_dir = 1; // Enables the motor to move in a particular direction
-  }
-  else
-  {
-    y_dir = 0; // Enables the motor to move in a particular direction
-  }
-  if(final_position[2] >= initial_position[2])
-  {
-   z_dir = 1; // Enables the motor to move in a particular direction
-  }
-  else
-  {
-    z_dir = 0; // Enables the motor to move in a particular direction
+    digitalWrite(M5_YSTEP,HIGH); 
+    delayMicroseconds(total_time); 
+    digitalWrite(M5_YSTEP,LOW); 
+    delayMicroseconds(total_time); 
+    total_time = ramp_start_time/resolution_multiplier - long(x*dt_dx);  
   }
   
-  long x_dist = abs(final_position[0] - initial_position[0]);
-  long y_dist = abs(final_position[1] - initial_position[1]);
-  long z_dist = abs(final_position[2] - initial_position[2]);
+}
+
+long rampDown_Y(long ramp_direction, long min_time, long steps_to_perform)
+{
+  //ramp_direction: 1 for ramp up and 0 for ramp down
+  //ramp_time: ramp time in ms
+  //steps_to_perform: number of steps to perform
+
+  // Direction
+   if(ramp_direction == 0)
+  {
+   digitalWrite(M5_YDIR,HIGH); // Enables the motor to move in a particular direction
+  }
+  else if(ramp_direction == 1)
+  {
+    digitalWrite(M5_YDIR,LOW); // Enables the motor to move in a particular direction
+  }
+
+  long total_time = ramp_start_time/resolution_multiplier;
+  double dt_dx = (double(ramp_start_time)/double(resolution_multiplier) - double(min_time)/double(resolution_multiplier))/(double(steps_to_perform)*double(resolution_multiplier));
+  
+  // PWM
+  for(long x=0; x < steps_to_perform*resolution_multiplier; x = x + 1)
+  {
+    digitalWrite(M5_YSTEP,HIGH);  
+    delayMicroseconds(total_time); 
+    digitalWrite(M5_YSTEP,LOW); 
+    delayMicroseconds(total_time); 
+    total_time = min_time/resolution_multiplier + long(x*dt_dx);  
+  }
+}
+
+long rampUp_Z(long ramp_direction, long min_time, long steps_to_perform)
+{
+  //ramp_direction: 1 for ramp up and 0 for ramp down
+  //ramp_time: ramp time in ms
+  //steps_to_perform: number of steps to perform
+
+  //Direction
+  if(ramp_direction == 0)
+  {
+   digitalWrite(M6_ZDIR,HIGH); // Enables the motor to move in a particular direction
+  }
+  else if(ramp_direction == 1)
+  {
+    digitalWrite(M6_ZDIR,LOW); // Enables the motor to move in a particular direction
+  }
+
+  long total_time = ramp_start_time/resolution_multiplier;
+  double dt_dx = (double(ramp_start_time)/double(resolution_multiplier) - double(min_time)/double(resolution_multiplier))/(double(steps_to_perform)*double(resolution_multiplier));
+
+  //PWM
+  for(long x=0; x < steps_to_perform*resolution_multiplier; x = x + 1)
+  {
+    digitalWrite(M6_ZSTEP,HIGH); 
+    delayMicroseconds(total_time); 
+    digitalWrite(M6_ZSTEP,LOW); 
+    delayMicroseconds(total_time); 
+    total_time = ramp_start_time/resolution_multiplier - long(x*dt_dx);  
+  }
+  
+}
+
+long rampDown_Z(long ramp_direction, long min_time, long steps_to_perform)
+{
+  //ramp_direction: 1 for ramp up and 0 for ramp down
+  //ramp_time: ramp time in ms
+  //steps_to_perform: number of steps to perform
+
+  // Direction
+   if(ramp_direction == 0)
+  {
+   digitalWrite(M6_ZDIR,HIGH); // Enables the motor to move in a particular direction
+  }
+  else if(ramp_direction == 1)
+  {
+    digitalWrite(M6_ZDIR,LOW); // Enables the motor to move in a particular direction
+  }
+
+  long total_time = ramp_start_time/resolution_multiplier;
+  double dt_dx = (double(ramp_start_time)/double(resolution_multiplier) - double(min_time)/double(resolution_multiplier))/(double(steps_to_perform)*double(resolution_multiplier));
+  
+  // PWM
+  for(long x=0; x < steps_to_perform*resolution_multiplier; x = x + 1)
+  {
+    digitalWrite(M6_ZSTEP,HIGH);  
+    delayMicroseconds(total_time); 
+    digitalWrite(M6_ZSTEP,LOW); 
+    delayMicroseconds(total_time); 
+    total_time = min_time/resolution_multiplier + long(x*dt_dx);  
+  }
+}
+
+void goToWithRamp(long steps_to_perform, long dir, char axis)
+{
+  // direction is a matrix of the ...
 
   long ramp_dist= 0;
-  // x axis
-  ramp_dist = rampSelector(x_dist);
-  rampUp(x_dir, speed_time, ramp_dist, resolution_multiplier);
-  if(final_position[0] >= initial_position[0])
-  {
-    initial_position[0] = goToCoordonate(initial_position[0]+ramp_dist, final_position[0]-ramp_dist, 'x', speed_time, resolution_multiplier);
-  }
-  else
-  {
-    initial_position[0] = goToCoordonate(initial_position[0]-ramp_dist, final_position[0]+ramp_dist, 'x', speed_time, resolution_multiplier);
-  }
-  rampDown(x_dir, speed_time, ramp_dist, resolution_multiplier);
-  initial_position[0] = final_position[0];
 
-  /*
-  // y axis
-  ramp_dist = rampSelector(y_dist);
-  rampUp(y_dir, speed_time, ramp_dist, 'y', resolution_multiplier);
-  initial_position[1] = goToCoordonate(initial_position[1]+ramp_dist, final_position[1]-ramp_dist, 'y', speed_time, resolution_multiplier);
-  rampDown(y_dir, speed_time, ramp_dist, 'y', resolution_multiplier);
-  initial_position[1] = final_position[1];
-
-  // z axis
-  ramp_dist = rampSelector(z_dist);
-  rampUp(z_dir, speed_time, ramp_dist, 'z', resolution_multiplier);
-  initial_position[2] = goToCoordonate(initial_position[2]+ramp_dist, final_position[2]-ramp_dist, 'z', speed_time, resolution_multiplier);
-  rampDown(z_dir, speed_time, ramp_dist, 'z', resolution_multiplier);
-  initial_position[2] = final_position[2];
-  */
+  if (axis == 'x')
+  {
+    ramp_dist = rampSelector(steps_to_perform);
+    rampUp_X(dir, speed_time, ramp_dist);
+    
+    goToCoordonate_X(steps_to_perform-2*ramp_dist, dir);
+  
+    rampDown_X(dir, speed_time, ramp_dist);
+  }
+  else if (axis == 'y')
+  {
+    ramp_dist = rampSelector(steps_to_perform);
+    rampUp_Y(dir, speed_time, ramp_dist);
+    
+    goToCoordonate_Y(steps_to_perform-2*ramp_dist, dir);
+  
+    rampDown_Y(dir, speed_time, ramp_dist);
+  }
+  else if (axis == 'z')
+  {
+    ramp_dist = rampSelector(steps_to_perform);
+    rampUp_Z(dir, speed_time, ramp_dist);
+    
+    goToCoordonate_Z(steps_to_perform-2*ramp_dist, dir);
+  
+    rampDown_Z(dir, speed_time, ramp_dist);
+  }
 }
 
 long rampSelector(long dist)
