@@ -28,35 +28,142 @@ import Vision
 import warnings
 import serial
 import serial.tools.list_ports
+import threading
 
 
 # Global def
 Tresh_Area = 100
 Dist_Tresh = 150
 # My_Path is used to point to the image directory.
-# My_path = "/home/pi/Documents/GitRepo/Image" # For th Raspberry pi
-My_Path = "/Users/hugodaniel/Desktop/StageMedellin/GitRepo/Image" # For my computer
+My_path = "/home/pi/Documents/GitRepo/Image" # For the Raspberry pi
+#My_Path = "/Users/hugodaniel/Desktop/StageMedellin/GitRepo/Image" # For my computer
+
+class RobotControl:
+    def __init__(self, ser):
+        self.axis = 0
+        self.direction = 0
+        self.enable = 0
+        self.ser = ser
+        self.serial_data = ""
+        self.send_command = False
+
+    def setUpAxis(self, axis):
+        self.axis = axis
+
+    def setUpDirection(self, direction):
+        self.axis = direction
+
+    def setUpEnable(self, enable):
+        self.axis = enable
+    
+    def waitForArduinoReady(self):
+        self.serial_data = ""
+        while self.serial_data != "Ready for new command":
+            self.serial_data = self.ser.readline().decode()
+
+    def sendCommandArduino(self, steps_to_perform):
+        self.ser.write(self.axis)
+        self.ser.write('\n'.encode())
+        self.ser.write(steps_to_perform.encode())
+        self.ser.write('\n'.encode())
+        self.ser.write(self.direction)
+        self.ser.write('\n'.encode())
+        self.ser.write(self.enable)
+        self.ser.write('\n'.encode())
+
+    def setSetCommand(self, state):
+        self.send_command = state
 
 class CurrentPosition:
     # Current position
-    def __init__(self, frame):
+    def __init__(self, ser, frame, RobotControl):   
+        self.robot_status = tk.Label(frame, text="Robot status")
+        self.robot_status.grid(column=0, row=0)
+        self.text_CNC_current_enter_position = tk.Label(frame, text="Enter position")
+        self.text_CNC_current_enter_position.grid(column=2, row=1, padx=2)
         self.text_CNC_current_position = tk.Label(frame, text="Current position")
-        self.text_CNC_current_position.grid(column=0, row=0)
+        self.text_CNC_current_position.grid(column=3, row=1)
 
-        self.CNC_current_position = tk.Label(frame, text="0")
-        self.CNC_current_position.grid(column=1, row=0)
+        self.robot_status_flag = tk.Label(frame, text="Ready")
+        self.robot_status_flag.grid(column=2, row=0)
+        self.CNC_current_position_X = tk.Label(frame, text="0")
+        self.CNC_current_position_X.grid(column=3, row=2)
+        self.CNC_current_position_Y = tk.Label(frame, text="0")
+        self.CNC_current_position_Y.grid(column=3, row=3)
+        self.CNC_current_position_Z = tk.Label(frame, text="0")
+        self.CNC_current_position_Z.grid(column=3, row=4)
 
-        self.text_CNC = tk.Label(frame, text="X axis")
-        self.text_CNC.grid(column=0, row=1)
+        self.text_CNC_X = tk.Label(frame, text="X axis")
+        self.text_CNC_X.grid(column=0, row=2)
+        self.text_CNC_Y = tk.Label(frame, text="Y axis")
+        self.text_CNC_Y.grid(column=0, row=3)
+        self.text_CNC_Z = tk.Label(frame, text="Z axis")
+        self.text_CNC_Z.grid(column=0, row=4)
 
-        self.input_CNC = tk.Entry(frame,width=10)
-        self.input_CNC.grid(column=1, row=1)
-        self.input_CNC.bind('<Return>',self.updateCNCPosition)
+        self.input_CNC_X = tk.Entry(frame,width=10)
+        self.input_CNC_X.grid(column=2, row=2)
+        self.input_CNC_X.bind('<Return>',self.updateXCNCPosition)
+        self.input_CNC_Y = tk.Entry(frame,width=10)
+        self.input_CNC_Y.grid(column=2, row=3)
+        self.input_CNC_Y.bind('<Return>',self.updateYCNCPosition)
+        self.input_CNC_Z = tk.Entry(frame,width=10)
+        self.input_CNC_Z.grid(column=2, row=4)
+        self.input_CNC_Z.bind('<Return>',self.updateZCNCPosition)
 
-    def updateCNCPosition(self, event):
-        #Tool.current_tool.setGripperPosition(self.input_CNC.get())
-        self.CNC_current_position.configure(text=3000)#str(self.input_CNC.get()))
+        self.RobotControl = RobotControl
+        self.RobotControl.waitForArduinoReady()
+ 
+        
+    def updateXCNCPosition(self, event):
+        steps_to_perform = self.input_CNC_X.get() 
+        self.robot_status_flag.configure(text="Moving...")
+        self.CNC_current_position_X.configure(text=steps_to_perform)
+        self.input_CNC_X.delete(0, 'end')
+        
+        self.updateXCNCPositionTEST(steps_to_perform)
 
+    def updateXCNCPositionTEST(self, steps_to_perform):
+        #steps_to_perform = self.input_CNC_X.get()       
+        #self.robot_status_flag.configure(text="Moving...")        
+        #self.CNC_current_position_X.configure(text=steps_to_perform)
+        #self.input_CNC_X.delete(0, 'end')
+        
+        
+        self.RobotControl.setUpAxis = 0
+        self.RobotControl.setUpDirection = 0
+        self.RobotControl.setUpEnable = 0
+        self.RobotControl.sendCommandArduino(steps_to_perform)
+        self.RobotControl.waitForArduinoReady()
+        self.RobotControl.setSetCommand(True)
+        self.robot_status_flag.configure(text="Ready")
+
+    def updateYCNCPosition(self, event):
+        steps_to_perform = self.input_CNC_Y.get()
+        self.robot_status_flag.configure(text="Moving...")
+        self.CNC_current_position_Y.configure(text=steps_to_perform)
+        self.input_CNC_Y.delete(0, 'end')
+        
+        self.RobotControl.setUpAxis = 1
+        self.RobotControl.setUpDirection = 0
+        self.RobotControl.setUpEnable = 0
+        self.RobotControl.sendCommandArduino(steps_to_perform)
+        self.RobotControl.waitForArduinoReady()
+
+    def updateZCNCPosition(self, event):
+        steps_to_perform = self.input_CNC_Z.get()
+        self.robot_status_flag.configure(text="Moving...")
+        self.CNC_current_position_Z.configure(text=steps_to_perform)
+        self.input_CNC_Z.delete(0, 'end')                       
+
+        self.RobotControl.setUpAxis = 2
+        self.RobotControl.setUpDirection = 0
+        self.RobotControl.setUpEnable = 0
+        self.RobotControl.sendCommandArduino(steps_to_perform)
+        self.RobotControl.waitForArduinoReady()
+
+    def setThreadArduinoReady(state):
+        self.threadIsAlive = state
+        
 class Capture:
     # Capture
     def __init__(self, frame):
@@ -366,7 +473,7 @@ class PhSensor:
         self.canvas.image = self.capture
 
 class MainApplication:
-    def __init__(self, master):
+    def __init__(self, ser, master, RobotControl):
         # Window init
         master.title("AeroponicBot GUI")
         master.geometry('600x650')
@@ -408,10 +515,10 @@ class MainApplication:
         frame_Ph_sensor.grid(column=0, row=6, padx=2, pady=2)
         frame_photo_Ph = tk.Frame(frame_current_tool)
         frame_photo_Ph.grid(column=1, row=6, padx=2, pady=2)
-        
+
         
         # Setup Widgets
-        self.current_position = CurrentPosition(frame_current_position)
+        self.current_position = CurrentPosition(ser, frame_current_position, RobotControl)
         self.capture = Capture(frame_capture)
         self.gripper = Gripper(frame_gripper, frame_photo_gripper)
         self.ultrasonic_sensor = UltrasonicSensor(frame_ultrasonic_sensor, frame_photo_ultrasonic)
@@ -419,7 +526,6 @@ class MainApplication:
         self.temperature_sensor = TemperatureSensor(frame_temperature_sensor, frame_photo_EC_temp)
         self.ph_sensor = PhSensor(frame_Ph_sensor, frame_photo_Ph)
         self.current_tool = CurrentTool(frame_current_tool, self.gripper, self.ultrasonic_sensor, self.ec_sensor, self.temperature_sensor, self.ph_sensor)
-        
 
 
 # Function that connect the Pi to an Arduino
@@ -427,24 +533,23 @@ def setUpArduino():
     arduino_ports = [
         p.device
         for p in serial.tools.list_ports.comports()
-        if 'ACM' or "Arduino" in p.description
+        if ('ACM' or "Arduino") in p.description
     ]
     if not arduino_ports:
         raise IOError("No Arduino found")
     if len(arduino_ports) > 1:
         warnings.warn('Multiple Arduinos found - using the first')
-    
-    return arduino_ports
 
+    return arduino_ports
 
 #start user interface loop
 if __name__ == "__main__":
     # Init comm arduino
-    #arduino_ports = setUpArduino()
+    arduino_ports = setUpArduino()
     
     # Init serial comm between arduino and raspberry pi
-    #if arduino_ports != False:
-    #    ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
+    if arduino_ports != False:
+        ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
     
     # Inint tool changer
     #Tool = ToolChanger.Tool("None")
@@ -454,15 +559,19 @@ if __name__ == "__main__":
     #setUpGarden(G)
     #G.updatePlantsArea()
     #G.displayGardenMapAreas()
+
+    Robot = RobotControl(ser)
     
     master = tk.Tk()
-    main_window = MainApplication(master)
-    while True:
+    main_window = MainApplication(ser, master, Robot)
+
+    while True:       
         try:
             master.mainloop()
             break
         except UnicodeDecodeError:
             pass 
+
         
     # Clean GPIO
     #Tool.cleanToolChanger()

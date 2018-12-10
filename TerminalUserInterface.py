@@ -39,7 +39,7 @@ def setUpArduino():
     arduino_ports = [
         p.device
         for p in serial.tools.list_ports.comports()
-        if 'ACM' in p.description or "Arduino" in p.description 
+        if ('ACM' or "Arduino") in p.description 
     ]
     if not arduino_ports:
         #raise IOError("No Arduino found")
@@ -73,11 +73,8 @@ def setUpGarden(GARDEN):
     GARDEN.displayGardenMapAreas()
 
 def main():   
-    print("main: ")
+    print("Terminal user interface program starts")
     
-    # Global def
-    #Image_Directory = "/Users/hugodaniel/MATLAB-Drive/Medellin/Images/bebeplantes.jpg"
-
     # Init Tool Changer
     #Tool = ToolChanger.Tool("Gripper")
     
@@ -88,52 +85,73 @@ def main():
     #G.displayGardenMapAreas()
     
     # Init comm arduino
-    #arduino_ports = setUpArduino()
+    arduino_ports = setUpArduino()
     #init serial comm between arduino and raspberry pi
-    #if arduino_ports != False:
-    #    ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
+    if arduino_ports != False:
+        ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
     
     tool = "None"
+    serial_data = ""
     try:
         while True:
+            while serial_data != "Ready for new command":
+                serial_data = ser.readline().decode()
+                print("Waining for arduino...")
             command = input('Enter command: ')
             
             if command == "help":
-                print("Tap:")
-                print("Analog")
-                print("Robot position")
-                print("Robot position -> exit")
-                print("Capture")
-                print("Analyse capture")
+                print("Try:")
+                print("analog")
+                print("robot position")
+                print("robot position -> exit")
+                print("capture")
+                print("analyse capture")
                 print("tool")
-                print("tool -> Current tool")
-                print("tool -> open (Gripper tool)")
-                print("tool -> close (Gripper tool)")
-                print("tool -> go to (Gripper tool)")
-                print("tool -> get (Ultrasonic sensor tool)")
-                print("tool -> get (EC and temp tool)")
-                print("tool -> get (Ph sensor tool)")
+                print("tool -> current tool")
+                print("tool -> open (gripper tool)")
+                print("tool -> close (gripper tool)")
+                print("tool -> go to (gripper tool)")
+                print("tool -> get (ultrasonic sensor tool)")
+                print("tool -> get (ec and temp tool)")
+                print("tool -> get (ph sensor tool)")
                 print("tool -> exit")
-                print("Change tool")
+                print("change tool")
                 print()
                 
-            elif command == "Analog":
+            elif command == "analog":
                 #print("Analog value: " + Tool.getAnalogInput())
                 print()
                 
-            elif command == "Robot position":
+            elif command == "robot position":
                 while True:
-                    second_command = input('Enter a command or position: ')
-                    if second_command == "exit":
-                        break
-                    elif isInt(second_command):
-                        print("Code not implemented")
-                    else:
-                        print("not a valid command")
-            elif command == "Capture":
+                    if serial_data == "Ready for new command":
+                        serial_data = ""
+                        command = input('Enter an axis: ')  
+                        ser.write(command.encode())
+                        ser.write('\n'.encode())
+                        command = input('Enter an number of steps: ') 
+                        ser.write(command.encode())
+                        ser.write('\n'.encode())
+                        command = input('Enter a direction: ') 
+                        ser.write(command.encode())
+                        ser.write('\n'.encode())
+                        command = input('Enter a enable: ') 
+                        ser.write(command.encode())
+                        ser.write('\n'.encode())
+
+                        #Wait to receive confirmation before continuing
+                        while serial_data != "Ready for new command":
+                            serial_data = ser.readline().decode()
+                            print("Waining for arduino...")
+                        
+                        second_command = input('Enter "exit" to quit: ')
+                        if second_command == "exit":
+                            break
+                            
+            elif command == "capture":
                 Vision.storeCapture(My_Path+"/imageTest.png")
                 Vision.resizeImage(My_Path+"/imageTest.png", 1000)
-            elif command == "Analyse capture": 
+            elif command == "analyse capture": 
                 #Plants detection
                 Vision.storeCapture(My_Path+"/imageTest.png")
                 img = Vision.getImageFromComputer(My_Path+"/imageTest.png")
@@ -145,7 +163,7 @@ def main():
             elif command == "tool":
                 while True:
                     second_command = input('Enter a tool command: ')                    
-                    if tool == "Gripper":
+                    if tool == "gripper":
                         if second_command == "open":
                             #Tool.current_tool.setGripperPosition(1900)
                             print("not activated")
@@ -157,13 +175,13 @@ def main():
                             print("not activated")
                             #Tool.current_tool.setGripperPosition(position)
                             print("not activated")
-                    elif tool == "Ultrasonic sensor":
+                    elif tool == "ultrasonic sensor":
                         if second_command == "get":
                             print("Code not implemented")
-                    elif tool == "EC and temp sensor":
+                    elif tool == "ec and temp sensor":
                         if second_command == "get":
                             print("Code not implemented")
-                    elif tool == "PH sensor":
+                    elif tool == "ph sensor":
                         if second_command == "get":
                             print("Code not implemented")
                     elif second_command == "exit":

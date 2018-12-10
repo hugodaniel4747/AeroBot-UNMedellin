@@ -21,7 +21,7 @@ def setUpArduino():
         for p in serial.tools.list_ports.comports()
         if 'ACM' in p.description or "Arduino" in p.description 
     ]
-    print(arduino_ports)
+    #print(arduino_ports)
     if not arduino_ports:
         #raise IOError("No Arduino found")
         return False
@@ -49,27 +49,32 @@ def main():
     else:
         print("Arduino Connexion failed")    
     
-    try:
-        while True:
+    while True:
+        try:
             data = ser.readline()
-            if data == "Ready for new command":
+
+            if data.decode() == "Ready for new command":
                 command = input('Enter an axis: ')  
-                ser.write(command)
+                ser.write(command.encode())
+                ser.write('\n'.encode())
                 command = input('Enter an number of steps: ') 
-                ser.write(command)
+                ser.write(command.encode())
+                ser.write('\n'.encode())
                 command = input('Enter a direction: ') 
-                ser.write(command)
+                ser.write(command.encode())
+                ser.write('\n'.encode())
                 command = input('Enter a enable: ') 
-                ser.write(command)
-    except (KeyboardInterrupt):
-        print('\n', "Exit on Ctrl-C")
+                ser.write(command.encode())
+                ser.write('\n'.encode())
+        except (KeyboardInterrupt):
+            print('\n', "Exit on Ctrl-C")
         
-    except:
-        print("Other error or exception occurred!")
-        raise
+        except:
+            print("Other error or exception occurred!")
+            raise
     
-    finally:
-        print
+        finally:
+            print
     
     
 if __name__=="__main__":
