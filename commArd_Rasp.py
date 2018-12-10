@@ -21,6 +21,7 @@ def setUpArduino():
         for p in serial.tools.list_ports.comports()
         if 'ACM' in p.description or "Arduino" in p.description 
     ]
+    print(arduino_ports)
     if not arduino_ports:
         #raise IOError("No Arduino found")
         return False
@@ -51,11 +52,7 @@ def main():
     try:
         while True:
             data = ser.readline()
-            print(data)
-            command = input("Enter stuff")
-            ser.write(command)
-            print(command) 
-            """if data == "Ready for new command":
+            if data == "Ready for new command":
                 command = input('Enter an axis: ')  
                 ser.write(command)
                 command = input('Enter an number of steps: ') 
@@ -63,7 +60,7 @@ def main():
                 command = input('Enter a direction: ') 
                 ser.write(command)
                 command = input('Enter a enable: ') 
-                ser.write(command)"""
+                ser.write(command)
     except (KeyboardInterrupt):
         print('\n', "Exit on Ctrl-C")
         
