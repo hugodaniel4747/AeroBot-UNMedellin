@@ -28,60 +28,55 @@ import Vision
 import warnings
 import serial
 import serial.tools.list_ports
-import threading
-
 
 # Global def
+global Tresh_Area
+global Dist_Tresh
+global My_path
+
 Tresh_Area = 100
 Dist_Tresh = 150
 # My_Path is used to point to the image directory.
-My_path = "/home/pi/Documents/GitRepo/Image" # For the Raspberry pi
+My_Path = "/home/pi/Documents/GitRepo/Image" # For the Raspberry pi
 #My_Path = "/Users/hugodaniel/Desktop/StageMedellin/GitRepo/Image" # For my computer
 
 class RobotControl:
     def __init__(self, ser):
-        self.axis = 0
+        self.axis = 1
+        self.steps_to_perform = 0
         self.direction = 0
         self.enable = 0
         self.ser = ser
         self.serial_data = ""
-        self.send_command = False
-
-    def setUpAxis(self, axis):
-        self.axis = axis
-
-    def setUpDirection(self, direction):
-        self.axis = direction
-
-    def setUpEnable(self, enable):
-        self.axis = enable
     
     def waitForArduinoReady(self):
         self.serial_data = ""
         while self.serial_data != "Ready for new command":
             self.serial_data = self.ser.readline().decode()
 
-    def sendCommandArduino(self, steps_to_perform):
-        self.ser.write(self.axis)
+    def sendCommandArduino(self):
+        print("axis ", int(self.axis))
+        print("steps ", self.steps_to_perform)
+        print("direction ", int(self.direction))
+        print("enable ", self.enable)
+        self.ser.write((str(self.axis)).encode())
         self.ser.write('\n'.encode())
-        self.ser.write(steps_to_perform.encode())
+        self.ser.write(self.steps_to_perform.encode())
         self.ser.write('\n'.encode())
-        self.ser.write(self.direction)
+        self.ser.write((str(self.direction)).encode())
         self.ser.write('\n'.encode())
-        self.ser.write(self.enable)
+        self.ser.write((str(self.enable)).encode())
         self.ser.write('\n'.encode())
 
-    def setSetCommand(self, state):
-        self.send_command = state
 
 class CurrentPosition:
     # Current position
-    def __init__(self, ser, frame, RobotControl):   
+    def __init__(self, ser, frame, RobotControl, master):   
         self.robot_status = tk.Label(frame, text="Robot status")
         self.robot_status.grid(column=0, row=0)
-        self.text_CNC_current_enter_position = tk.Label(frame, text="Enter position")
+        self.text_CNC_current_enter_position = tk.Label(frame, text="Enter command")
         self.text_CNC_current_enter_position.grid(column=2, row=1, padx=2)
-        self.text_CNC_current_position = tk.Label(frame, text="Current position")
+        self.text_CNC_current_position = tk.Label(frame, text="Last command")
         self.text_CNC_current_position.grid(column=3, row=1)
 
         self.robot_status_flag = tk.Label(frame, text="Ready")
@@ -112,57 +107,89 @@ class CurrentPosition:
 
         self.RobotControl = RobotControl
         self.RobotControl.waitForArduinoReady()
+
+        self.master = master
  
         
     def updateXCNCPosition(self, event):
         steps_to_perform = self.input_CNC_X.get() 
-        self.robot_status_flag.configure(text="Moving...")
-        self.CNC_current_position_X.configure(text=steps_to_perform)
-        self.input_CNC_X.delete(0, 'end')
-        
-        self.updateXCNCPositionTEST(steps_to_perform)
+        self.robot_status_flag.configure(text="Moving... Whait for motor to stop", foreground="red")
 
-    def updateXCNCPositionTEST(self, steps_to_perform):
-        #steps_to_perform = self.input_CNC_X.get()       
-        #self.robot_status_flag.configure(text="Moving...")        
-        #self.CNC_current_position_X.configure(text=steps_to_perform)
-        #self.input_CNC_X.delete(0, 'end')
-        
-        
-        self.RobotControl.setUpAxis = 0
-        self.RobotControl.setUpDirection = 0
-        self.RobotControl.setUpEnable = 0
-        self.RobotControl.sendCommandArduino(steps_to_perform)
-        self.RobotControl.waitForArduinoReady()
-        self.RobotControl.setSetCommand(True)
-        self.robot_status_flag.configure(text="Ready")
+        if int(steps_to_perform) < 0:
+            steps_to_perform = str(abs(int(steps_to_perform)))
+            self.RobotControl.steps_to_perform = steps_to_perform
+            self.RobotControl.direction = 0
+        else:
+            self.RobotControl.direction = 1
+            self.RobotControl.steps_to_perform = steps_to_perform
+
+        self.RobotControl.axis = 0    
+        self.RobotControl.enable = 0
+        self.master.after(100, self.updateXCNCPositionCallBack)
 
     def updateYCNCPosition(self, event):
-        steps_to_perform = self.input_CNC_Y.get()
-        self.robot_status_flag.configure(text="Moving...")
-        self.CNC_current_position_Y.configure(text=steps_to_perform)
-        self.input_CNC_Y.delete(0, 'end')
-        
-        self.RobotControl.setUpAxis = 1
-        self.RobotControl.setUpDirection = 0
-        self.RobotControl.setUpEnable = 0
-        self.RobotControl.sendCommandArduino(steps_to_perform)
-        self.RobotControl.waitForArduinoReady()
+        steps_to_perform = self.input_CNC_Y.get() 
+        self.robot_status_flag.configure(text="Moving... Whait for motor to stop", foreground="red")
+
+        if int(steps_to_perform) < 0:
+            steps_to_perform = str(abs(int(steps_to_perform)))
+            self.RobotControl.steps_to_perform = steps_to_perform
+            self.RobotControl.direction = 0
+        else:
+            self.RobotControl.direction = 1
+            self.RobotControl.steps_to_perform = steps_to_perform
+
+        self.RobotControl.axis = 1    
+        self.RobotControl.steps_to_perform = steps_to_perform
+        self.RobotControl.enable = 0
+        self.master.after(100, self.updateYCNCPositionCallBack)
 
     def updateZCNCPosition(self, event):
-        steps_to_perform = self.input_CNC_Z.get()
-        self.robot_status_flag.configure(text="Moving...")
-        self.CNC_current_position_Z.configure(text=steps_to_perform)
-        self.input_CNC_Z.delete(0, 'end')                       
+        steps_to_perform = self.input_CNC_Z.get() 
+        self.robot_status_flag.configure(text="Moving... Whait for motor to stop", foreground="red")
 
-        self.RobotControl.setUpAxis = 2
-        self.RobotControl.setUpDirection = 0
-        self.RobotControl.setUpEnable = 0
-        self.RobotControl.sendCommandArduino(steps_to_perform)
+        if int(steps_to_perform) < 0:
+            steps_to_perform = str(abs(int(steps_to_perform)))
+            self.RobotControl.steps_to_perform = steps_to_perform
+            self.RobotControl.direction = 0
+        else:
+            self.RobotControl.direction = 1
+            self.RobotControl.steps_to_perform = steps_to_perform
+
+        self.RobotControl.axis = 2    
+        self.RobotControl.steps_to_perform = steps_to_perform
+        self.RobotControl.enable = 0
+        self.master.after(100, self.updateZCNCPositionCallBack)
+
+    def updateXCNCPositionCallBack(self):
+        self.RobotControl.sendCommandArduino()
         self.RobotControl.waitForArduinoReady()
+        self.robot_status_flag.configure(text="Ready")
+        if self.RobotControl.direction == 0:
+            self.CNC_current_position_X.configure(text=("-", self.RobotControl.steps_to_perform))
+        else:
+            self.CNC_current_position_X.configure(text=self.RobotControl.steps_to_perform)
+        self.input_CNC_X.delete(0, 'end')
 
-    def setThreadArduinoReady(state):
-        self.threadIsAlive = state
+    def updateYCNCPositionCallBack(self):
+        self.RobotControl.sendCommandArduino()
+        self.RobotControl.waitForArduinoReady()
+        self.robot_status_flag.configure(text="Ready")
+        if self.RobotControl.direction == 0:
+            self.CNC_current_position_Y.configure(text=("-", self.RobotControl.steps_to_perform))
+        else:
+            self.CNC_current_position_Y.configure(text=self.RobotControl.steps_to_perform)
+        self.input_CNC_Y.delete(0, 'end')
+
+    def updateZCNCPositionCallBack(self):
+        self.RobotControl.sendCommandArduino()
+        self.RobotControl.waitForArduinoReady()
+        self.robot_status_flag.configure(text="Ready")
+        if self.RobotControl.direction == 0:
+            self.CNC_current_position_Z.configure(text=("-", self.RobotControl.steps_to_perform))
+        else:
+            self.CNC_current_position_Z.configure(text=self.RobotControl.steps_to_perform)
+        self.input_CNC_Z.delete(0, 'end')
         
 class Capture:
     # Capture
@@ -475,57 +502,61 @@ class PhSensor:
 class MainApplication:
     def __init__(self, ser, master, RobotControl):
         # Window init
-        master.title("AeroponicBot GUI")
-        master.geometry('600x650')
+        self.master = master
+        self.ser = ser
+        self.RobotControl = RobotControl
+        
+        self.master.title("AeroponicBot GUI")
+        self.master.geometry('600x650')
 
         # Setting the position and the form of the frames
         # Current position
-        frame_current_position = tk.LabelFrame(master, text="Current robot position")
-        frame_current_position.grid(column=0, row=0, padx=5, pady=5)
+        self.frame_current_position = tk.LabelFrame(self.master, text="Current robot position")
+        self.frame_current_position.grid(column=0, row=0, padx=5, pady=5)
         # Camera
-        frame_capture = tk.LabelFrame(master, text="Camera")
-        frame_capture.grid(column=0, row=1, padx=2, pady=5)
+        self.frame_capture = tk.LabelFrame(self.master, text="Camera")
+        self.frame_capture.grid(column=0, row=1, padx=2, pady=5)
         # Tool changer
-        frame_current_tool = tk.LabelFrame(master, text="Tool changer")
-        frame_current_tool.grid(column=0, row=2, padx=5, pady=0)
+        self.frame_current_tool = tk.LabelFrame(self.master, text="Tool changer")
+        self.frame_current_tool.grid(column=0, row=2, padx=5, pady=0)
         # Gripper
-        frame_gripper = tk.LabelFrame(frame_current_tool, text="Gripper")
-        frame_gripper.grid(column=0, row=3, padx=5, pady=2)
-        frame_photo_gripper = tk.Frame(frame_current_tool)
-        frame_photo_gripper.grid(column=1, row=3, padx=2, pady=2)
+        self.frame_gripper = tk.LabelFrame(self.frame_current_tool, text="Gripper")
+        self.frame_gripper.grid(column=0, row=3, padx=5, pady=2)
+        self.frame_photo_gripper = tk.Frame(self.frame_current_tool)
+        self.frame_photo_gripper.grid(column=1, row=3, padx=2, pady=2)
         # Ultrasonic sensor
-        frame_ultrasonic_sensor = tk.LabelFrame(frame_current_tool, text="Ultrasonic sensor")
-        frame_ultrasonic_sensor.grid(column=0, row=4, padx=2, pady=2)
-        frame_photo_ultrasonic = tk.Frame(frame_current_tool)
-        frame_photo_ultrasonic.grid(column=1, row=4, padx=2, pady=2)        
+        self.frame_ultrasonic_sensor = tk.LabelFrame(self.frame_current_tool, text="Ultrasonic sensor")
+        self.frame_ultrasonic_sensor.grid(column=0, row=4, padx=2, pady=2)
+        self.frame_photo_ultrasonic = tk.Frame(self.frame_current_tool)
+        self.frame_photo_ultrasonic.grid(column=1, row=4, padx=2, pady=2)        
         # EC and temperature sensor
-        frame_EC_Temp_sensor = tk.LabelFrame(frame_current_tool, text="EC and temperature sensor")
-        frame_EC_Temp_sensor.grid(column=0, row=5, padx=2, pady=2)
+        self.frame_EC_Temp_sensor = tk.LabelFrame(self.frame_current_tool, text="EC and temperature sensor")
+        self.frame_EC_Temp_sensor.grid(column=0, row=5, padx=2, pady=2)
         # EC sensor
-        frame_EC_sensor = tk.Frame(frame_EC_Temp_sensor)
-        frame_EC_sensor.grid(column=0, row=0, padx=2, pady=2)
+        self.frame_EC_sensor = tk.Frame(self.frame_EC_Temp_sensor)
+        self.frame_EC_sensor.grid(column=0, row=0, padx=2, pady=2)
         # Temperature sensor
-        frame_temperature_sensor = tk.Frame(frame_EC_Temp_sensor)
-        frame_temperature_sensor.grid(column=0, row=1, padx=2, pady=2)
+        self.frame_temperature_sensor = tk.Frame(self.frame_EC_Temp_sensor)
+        self.frame_temperature_sensor.grid(column=0, row=1, padx=2, pady=2)
         # Photo EC and temperature sensor
-        frame_photo_EC_temp = tk.Frame(frame_current_tool)
-        frame_photo_EC_temp.grid(column=1, row=5, padx=2, pady=2)
+        self.frame_photo_EC_temp = tk.Frame(self.frame_current_tool)
+        self.frame_photo_EC_temp.grid(column=1, row=5, padx=2, pady=2)
         # Ph sensor
-        frame_Ph_sensor = tk.LabelFrame(frame_current_tool, text="Ph sensor")
-        frame_Ph_sensor.grid(column=0, row=6, padx=2, pady=2)
-        frame_photo_Ph = tk.Frame(frame_current_tool)
-        frame_photo_Ph.grid(column=1, row=6, padx=2, pady=2)
+        self.frame_Ph_sensor = tk.LabelFrame(self.frame_current_tool, text="Ph sensor")
+        self.frame_Ph_sensor.grid(column=0, row=6, padx=2, pady=2)
+        self.frame_photo_Ph = tk.Frame(self.frame_current_tool)
+        self.frame_photo_Ph.grid(column=1, row=6, padx=2, pady=2)
 
         
         # Setup Widgets
-        self.current_position = CurrentPosition(ser, frame_current_position, RobotControl)
-        self.capture = Capture(frame_capture)
-        self.gripper = Gripper(frame_gripper, frame_photo_gripper)
-        self.ultrasonic_sensor = UltrasonicSensor(frame_ultrasonic_sensor, frame_photo_ultrasonic)
-        self.ec_sensor = ECSensor(frame_EC_sensor, frame_photo_EC_temp)
-        self.temperature_sensor = TemperatureSensor(frame_temperature_sensor, frame_photo_EC_temp)
-        self.ph_sensor = PhSensor(frame_Ph_sensor, frame_photo_Ph)
-        self.current_tool = CurrentTool(frame_current_tool, self.gripper, self.ultrasonic_sensor, self.ec_sensor, self.temperature_sensor, self.ph_sensor)
+        self.current_position = CurrentPosition(self.ser, self.frame_current_position, self.RobotControl, self.master)
+        self.capture = Capture(self.frame_capture)
+        self.gripper = Gripper(self.frame_gripper, self.frame_photo_gripper)
+        self.ultrasonic_sensor = UltrasonicSensor(self.frame_ultrasonic_sensor, self.frame_photo_ultrasonic)
+        self.ec_sensor = ECSensor(self.frame_EC_sensor, self.frame_photo_EC_temp)
+        self.temperature_sensor = TemperatureSensor(self.frame_temperature_sensor, self.frame_photo_EC_temp)
+        self.ph_sensor = PhSensor(self.frame_Ph_sensor, self.frame_photo_Ph)
+        self.current_tool = CurrentTool(self.frame_current_tool, self.gripper, self.ultrasonic_sensor, self.ec_sensor, self.temperature_sensor, self.ph_sensor)
 
 
 # Function that connect the Pi to an Arduino
