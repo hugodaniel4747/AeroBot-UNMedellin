@@ -245,6 +245,7 @@ void goToWithRamp(long steps_to_perform, long dir, char axis)
 
 long rampSelector(long dist)
 {
+  //Set the lenght of a ramp here
   if(dist >= 3000)
   {
     return 1000;

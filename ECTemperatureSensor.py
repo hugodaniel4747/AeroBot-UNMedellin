@@ -9,6 +9,8 @@
     Description: EC and temperature sensor code
     
     STATE: NOT TERMINATED
+    ADVICE: I tried to convert the code on this wed page to python: https://www.dfrobot.com/wiki/index.php/Analog_EC_Meter_SKU:DFR0300
+            I invite you to continue it or to get an other arduino.
     
 """
  # 

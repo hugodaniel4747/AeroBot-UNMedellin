@@ -14,8 +14,6 @@
 import cv2
 import numpy as np
 
-
-
 def getImageFromComputer(image_directory):
     """
         Arguments:  Image directory
@@ -301,4 +299,15 @@ def getCapture(webcam=0):
     ret, frame = camera.read()
     return frame
 
-
+def analysePlantArea(My_Path, Tresh_Area):
+    """
+        Arguments:  webcam
+        Return:     capture
+        Function:   Simplifie the code when analysing the plant area
+    """
+    storeCapture(My_Path+"/imageTest.png")
+    img = getImageFromComputer(My_Path+"/imageTest.png")
+    contours = pipelineGetContours(img)
+    listOfAreas = drawAreasBoundingBox(img, contours, Tresh_Area)
+    listCenterAreas = findCenterPlant(img, listOfAreas, 200)        
+    cv2.imwrite(My_Path+"/imageTest.png", img)

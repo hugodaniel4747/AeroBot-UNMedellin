@@ -36,7 +36,7 @@ void loop()
 {
   //SECTION INTERFACE UTILISATEUR
   // Read serial input:
-  
+  // After aving received 4 instructions, execute the new command and wait for a new one
   while (Serial.available() > 0)
   {
     char inChar = Serial.read();

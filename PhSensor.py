@@ -8,7 +8,9 @@
 
     Description: Ph sensor code
     
-    STATE: NOT TERMINATED    
+    STATE: NOT TERMINATED  
+    ADVICE: I tried to convert the code on this wed page to python: https://www.dfrobot.com/wiki/index.php/Analog_pH_Meter_Pro_SKU:SEN0169
+            I invite you to continue it or to get an other arduino.
     
 """
 

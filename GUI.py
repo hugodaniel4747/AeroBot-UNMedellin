@@ -11,12 +11,6 @@
     
 """
 
-"""
-!!!!!!!!!!!!!!!
-UNCOMMENT ALL ToolChanget AND Tool INSTANCES BEFORE USING ON A RESPBERRY PI
-COMMENT WHEN BUILDING FROM A COMPUTER
-!!!!!!!!!!!!!!!
-"""
 
 # Libraries
 import tkinter as tk
@@ -24,7 +18,7 @@ import tkinter.ttk as ttk
 import cv2
 import AeroGarden
 import Vision
-#import ToolChanger
+import ToolChanger
 import warnings
 import serial
 import serial.tools.list_ports
@@ -41,6 +35,7 @@ My_Path = "/home/pi/Documents/GitRepo/Image" # For the Raspberry pi
 #My_Path = "/Users/hugodaniel/Desktop/StageMedellin/GitRepo/Image" # For my computer
 
 class RobotControl:
+    #Robot control function
     def __init__(self, ser):
         self.axis = 1
         self.steps_to_perform = 0
@@ -212,13 +207,8 @@ class Capture:
     
     def analysePlants(self):
         #Plants detection
-        Vision.storeCapture(My_Path+"/imageTest.png")
-        self.img = Vision.getImageFromComputer(My_Path+"/imageTest.png")
-        self.contours = Vision.pipelineGetContours(self.img)
-        self.listOfAreas = Vision.drawAreasBoundingBox(self.img, self.contours, Tresh_Area)
-        self.listCenterAreas = Vision.findCenterPlant(self.img, self.listOfAreas, 200)
-        
-        cv2.imwrite(My_Path+"/imageTest.png", self.img)
+        #!!!Need to add code to save the area!!!
+        Vision.analysePlantArea(My_Path, Tresh_Area)
 
         self.top = tk.Toplevel()
         self.top.title("Analyse capture")
@@ -261,7 +251,7 @@ class CurrentTool:
         by callint the update function of the tool
         """
         
-        #Tool.setCurrentTool("None")
+        Tool.setCurrentTool("None")
         
         # Get setected_tool var
         self.selected_tool = self.combo.get()
@@ -280,23 +270,23 @@ class CurrentTool:
         
         # Enable the selected tool
         if self.selected_tool == "Gripper":
-            #Tool.setCurrentTool("Gripper")
+            Tool.setCurrentTool("Gripper")
             self.gripper.active = True
             self.gripper.updateGripper()            
         elif self.selected_tool == "Ultrasonic sensor":
-            #Tool.setCurrentTool("Ultrasonic sensor")
+            Tool.setCurrentTool("Ultrasonic sensor")
             self.ultrasonic_sensor.active = True
             self.ultrasonic_sensor.updateUltrasonicSensor()
             #self.ultrasonic_sensor.distance_untrasonic_sensor.grid()
         elif self.selected_tool == "EC and temperature sensor":
-            #Tool.setCurrentTool("ECTempSensor")
+            Tool.setCurrentTool("ECTempSensor")
             
             self.ec_sensor.active = True
             self.ec_sensor.updateECSensor()
             self.temperature_sensor.active = True
             self.temperature_sensor.updateTemperatureSensor()
         elif self.selected_tool == "Ph sensor":
-            #Tool.setCurrentTool("PhSensor")
+            Tool.setCurrentTool("PhSensor")
             
             self.ph_sensor.active = True
             self.ph_sensor.updatePhSensor() 
@@ -333,13 +323,13 @@ class Gripper:
             self.blurGripperImage()
 
     def openGripper(self):
-        #Tool.current_tool.setGripperPosition(1900)
+        Tool.current_tool.setGripperPosition(1900)
         
         self.gripper_state.configure(text="Open")
         self.openGripperImage()
         
     def closeGripper(self):
-        #Tool.current_tool.setGripperPosition(1400)
+        Tool.current_tool.setGripperPosition(1400)
         
         self.gripper_state.configure(text="Close")
         self.closeGripperImage()
@@ -583,7 +573,7 @@ if __name__ == "__main__":
         ser = serial.Serial(arduino_ports[0], 9600, 8, 'N', 1, timeout=1)
     
     # Inint tool changer
-    #Tool = ToolChanger.Tool("None")
+    Tool = ToolChanger.Tool("None")
     
     # Init Garden
     G = AeroGarden.Garden()
@@ -605,5 +595,5 @@ if __name__ == "__main__":
 
         
     # Clean GPIO
-    #Tool.cleanToolChanger()
+    Tool.cleanToolChanger()
 

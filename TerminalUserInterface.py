@@ -30,6 +30,7 @@ import serial.tools.list_ports
 # Global def
 Tresh_Area = 100
 Dist_Tresh = 150
+
 # My_Path is used to point to the image directory.
 # My_path = "/home/pi/Documents/GitRepo/Image" # For th Raspberry pi
 My_Path = "/Users/hugodaniel/Desktop/StageMedellin/GitRepo/Image" # For my computer
@@ -152,13 +153,9 @@ def main():
                 Vision.storeCapture(My_Path+"/imageTest.png")
                 Vision.resizeImage(My_Path+"/imageTest.png", 1000)
             elif command == "analyse capture": 
-                #Plants detection
-                Vision.storeCapture(My_Path+"/imageTest.png")
-                img = Vision.getImageFromComputer(My_Path+"/imageTest.png")
-                contours = Vision.pipelineGetContours(img)
-                listOfAreas = Vision.drawAreasBoundingBox(img, contours, Tresh_Area)
-                listCenterAreas = Vision.findCenterPlant(img, listOfAreas, 200)        
-                cv2.imwrite(My_Path+"/imageTest.png", img)
+                #Plants detection 
+                #!!!Need to add code to save the area!!!
+                Vision.analysePlantArea(My_Path, Tresh_Area)
                 
             elif command == "tool":
                 while True:
